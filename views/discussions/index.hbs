@@ -1,0 +1,14 @@
+<div class="page-header">
+  <h1>Обсуждения</h1>
+  {{#if user}}
+    <a href="/discussions/new" class="btn btn-primary">Новое обсуждение</a>
+  {{/if}}
+</div>
+
+{{#if discussions.length}}
+  {{#each discussions}}
+    {{> discussion-card}}
+  {{/each}}
+{{else}}
+  <p class="empty">Пока нет обсуждений. Будьте первым!</p>
+{{/if}}

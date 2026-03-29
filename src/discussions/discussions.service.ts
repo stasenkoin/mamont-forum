@@ -1,0 +1,63 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateDiscussionDto } from './dto/create-discussion.dto';
+import { UpdateDiscussionDto } from './dto/update-discussion.dto';
+
+@Injectable()
+export class DiscussionsService {
+  constructor(private prisma: PrismaService) {}
+
+  async findAll() {
+    return this.prisma.discussion.findMany({
+      include: {
+        author: true,
+        _count: { select: { comments: true, likes: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findOne(id: number) {
+    return this.prisma.discussion.findUnique({
+      where: { id },
+      include: {
+        author: true,
+        comments: {
+          include: { author: true },
+          orderBy: { createdAt: 'asc' },
+        },
+        likes: true,
+        _count: { select: { comments: true, likes: true } },
+      },
+    });
+  }
+
+  async create(dto: CreateDiscussionDto, authorId: number) {
+    return this.prisma.discussion.create({
+      data: {
+        title: dto.title,
+        content: dto.content,
+        authorId,
+      },
+    });
+  }
+
+  async update(id: number, dto: UpdateDiscussionDto) {
+    return this.prisma.discussion.update({
+      where: { id },
+      data: { title: dto.title, content: dto.content },
+    });
+  }
+
+  async delete(id: number) {
+    return this.prisma.discussion.delete({ where: { id } });
+  }
+
+  async isAuthor(discussionId: number, userId: number): Promise<boolean> {
+    const discussion = await this.prisma.discussion.findUnique({
+      where: { id: discussionId },
+      select: { authorId: true },
+    });
+    return discussion?.authorId === userId;
+  }
+}

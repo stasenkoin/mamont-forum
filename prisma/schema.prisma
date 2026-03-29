@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  nickname  String   @unique
+  password  String
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  discussions   Discussion[]
+  comments      Comment[]
+  likes         DiscussionLike[]
+  notifications Notification[]
+}
+
+model Discussion {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  authorId  Int?
+
+  author   User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  comments Comment[]
+  likes    DiscussionLike[]
+}
+
+model Comment {
+  id           Int      @id @default(autoincrement())
+  content      String
+  createdAt    DateTime @default(now())
+  authorId     Int?
+  discussionId Int
+
+  discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  author     User?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
+}
+
+model DiscussionLike {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  userId       Int
+  discussionId Int
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, discussionId])
+}
+
+model Notification {
+  id           Int      @id @default(autoincrement())
+  type         String
+  message      String
+  isRead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  userId       Int
+  discussionId Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

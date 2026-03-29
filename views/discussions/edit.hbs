@@ -1,0 +1,11 @@
+<h1>Редактирование обсуждения</h1>
+<form action="/discussions/{{discussion.id}}/update" method="POST" class="form">
+  <label for="title">Заголовок</label>
+  <input type="text" name="title" id="title" value="{{discussion.title}}" required>
+
+  <label for="content">Содержание</label>
+  <textarea name="content" id="content" rows="8" required>{{discussion.content}}</textarea>
+
+  <button type="submit" class="btn btn-primary">Сохранить</button>
+  <a href="/discussions/{{discussion.id}}" class="btn btn-outline">Отмена</a>
+</form>

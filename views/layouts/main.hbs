@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mamont Forum</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  {{> header}}
+  <main class="container">
+    {{{body}}}
+  </main>
+  {{> footer}}
+  {{#if user}}
+  <script src="/js/notifications.js"></script>
+  {{/if}}
+</body>
+</html>

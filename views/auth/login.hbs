@@ -1,0 +1,14 @@
+<h1>Вход</h1>
+{{#if error}}
+  <div class="alert alert-error">{{error}}</div>
+{{/if}}
+<form action="/auth/login" method="POST" class="form">
+  <label for="nickname">Никнейм</label>
+  <input type="text" name="nickname" id="nickname" required>
+
+  <label for="password">Пароль</label>
+  <input type="password" name="password" id="password" required>
+
+  <button type="submit" class="btn btn-primary">Войти</button>
+  <p>Нет аккаунта? <a href="/auth/register">Зарегистрироваться</a></p>
+</form>

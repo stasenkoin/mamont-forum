@@ -1,0 +1,15 @@
+<div class="comment" id="comment-{{id}}">
+  <div class="comment-header">
+    <strong>{{#if author}}{{author.nickname}}{{else}}Удалённый пользователь{{/if}}</strong>
+    <span class="meta">{{formatDate createdAt}}</span>
+  </div>
+  <p>{{content}}</p>
+  {{#if showActions}}
+    <div class="comment-actions">
+      <a href="/discussions/{{discussionId}}/comments/{{id}}/edit" class="btn btn-sm">Редактировать</a>
+      <form action="/discussions/{{discussionId}}/comments/{{id}}/delete" method="POST" style="display:inline">
+        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Удалить комментарий?')">Удалить</button>
+      </form>
+    </div>
+  {{/if}}
+</div>

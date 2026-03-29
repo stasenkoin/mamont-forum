@@ -1,0 +1,16 @@
+<div class="card">
+  <div class="card-header">
+    <h3><a href="/discussions/{{id}}">{{title}}</a></h3>
+    <span class="meta">
+      {{#if author}}{{author.nickname}}{{else}}Удалённый пользователь{{/if}}
+      &middot; {{formatDate createdAt}}
+    </span>
+  </div>
+  <p class="card-text">{{truncate content 200}}</p>
+  <div class="card-footer">
+    <span>&#128172; {{_count.comments}}</span>
+    <span>&#10084; {{_count.likes}}</span>
+    <a href="/discussions/{{id}}" class="btn btn-sm">Открыть обсуждение</a>
+    <a href="/discussions/{{id}}#comment-form" class="btn btn-sm btn-outline">Оставить комментарий</a>
+  </div>
+</div>

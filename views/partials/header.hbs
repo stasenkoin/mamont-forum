@@ -1,0 +1,27 @@
+<header class="header">
+  <div class="header-inner">
+    <a href="/discussions" class="logo">&#129419; Mamont Forum</a>
+    <nav class="header-nav">
+      {{#if user}}
+        <div class="notification-wrapper">
+          <a href="/notifications" class="btn btn-sm" id="notification-btn">
+            &#128276; <span id="notification-count"></span>
+          </a>
+        </div>
+        <span class="user-info">
+          {{#if user.avatarUrl}}
+            <img src="{{user.avatarUrl}}" alt="avatar" class="avatar-sm">
+          {{/if}}
+          {{user.nickname}}
+        </span>
+        <a href="/account" class="btn btn-sm">Настройки</a>
+        <form action="/auth/logout" method="POST" style="display:inline">
+          <button type="submit" class="btn btn-sm btn-outline">Выйти</button>
+        </form>
+      {{else}}
+        <a href="/auth/login" class="btn btn-sm">Войти</a>
+        <a href="/auth/register" class="btn btn-sm btn-primary">Регистрация</a>
+      {{/if}}
+    </nav>
+  </div>
+</header>
