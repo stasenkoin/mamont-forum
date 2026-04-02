@@ -3,15 +3,11 @@ document.addEventListener('DOMContentLoaded', function () {
   var source = new EventSource('/notifications/stream');
 
   source.onmessage = function (event) {
-    var notification = JSON.parse(event.data);
-
-    // Update counter
+    var notification = JSON.parse(event.data)
     if (countEl) {
       var current = parseInt(countEl.textContent) || 0;
       countEl.textContent = current + 1;
     }
-
-    // Show toast
     var toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = notification.message;
@@ -25,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function () {
     source.close();
   };
 
-  // Load initial unread count
   fetch('/notifications/unread-count')
     .then(function (r) { return r.json(); })
     .then(function (data) {
