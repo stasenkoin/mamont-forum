@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!article) return;
   var discussionId = article.dataset.discussionId;
 
-  // Лайк / анлайк
   var likeBtn = document.getElementById('like-btn');
   var likeCount = document.getElementById('like-count');
 
@@ -29,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Отправка комментария
   var form = document.getElementById('comment-form');
   var textarea = document.getElementById('comment-content');
   var commentsList = document.getElementById('comments-list');
@@ -65,7 +63,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
-// Удаление комментария
 function deleteComment(discussionId, commentId) {
   if (!confirm('Удалить комментарий?')) return;
   fetch('/api/discussions/' + discussionId + '/comments/' + commentId, {

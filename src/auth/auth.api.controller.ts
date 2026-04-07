@@ -33,7 +33,10 @@ export class AuthApiController {
 
   @Post('login')
   async login(@Body() dto: LoginDto, @Req() req: Request) {
-    const user = await this.authService.validateUser(dto.nickname, dto.password);
+    const user = await this.authService.validateUser(
+      dto.nickname,
+      dto.password,
+    );
     if (!user) {
       throw new UnauthorizedException('Неверный никнейм или пароль');
     }
@@ -57,6 +60,9 @@ export class AuthApiController {
   @UseGuards(AuthGuardApi)
   async me(@Req() req: Request) {
     const user = await this.authService.findById(req.session.userId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
     return {
       id: user.id,
       nickname: user.nickname,
@@ -69,9 +75,9 @@ export class AuthApiController {
   @UseGuards(AuthGuardApi)
   async deleteAccount(@Req() req: Request) {
     const userId = req.session.userId;
+    await this.authService.deleteAccount(userId);
     return new Promise<{ message: string }>((resolve) => {
-      req.session.destroy(async () => {
-        await this.authService.deleteAccount(userId);
+      req.session.destroy(() => {
         resolve({ message: 'Аккаунт удалён' });
       });
     });
