@@ -12,17 +12,22 @@ import {
   ForbiddenException,
   DefaultValuePipe,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { NotificationsService } from './notifications.service';
 import { AuthGuardApi } from '../common/auth-api.guard';
 import { setPaginationHeaders } from '../common/pagination';
 
+@ApiTags('Уведомления')
 @Controller('api/notifications')
 @UseGuards(AuthGuardApi)
 export class NotificationsApiController {
   constructor(private notificationsService: NotificationsService) {}
 
   @Get()
+  @ApiOperation({ summary: 'Получить список уведомлений' })
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
   async findAll(
     @Req() req: Request,
     @Res() res: Response,
@@ -37,6 +42,7 @@ export class NotificationsApiController {
   }
 
   @Post(':id/read')
+  @ApiOperation({ summary: 'Отметить уведомление как прочитанное' })
   async markAsRead(
     @Param('id', ParseIntPipe) id: number,
     @Req() req: Request,
@@ -48,12 +54,14 @@ export class NotificationsApiController {
   }
 
   @Post('read-all')
+  @ApiOperation({ summary: 'Отметить все уведомления как прочитанные' })
   async markAllAsRead(@Req() req: Request) {
     await this.notificationsService.markAllAsRead(req.session.userId);
     return { message: 'Все уведомления прочитаны' };
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Удалить уведомление' })
   async delete(
     @Param('id', ParseIntPipe) id: number,
     @Req() req: Request,

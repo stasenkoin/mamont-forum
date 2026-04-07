@@ -1,3 +1,4 @@
+import { ApiExcludeController } from '@nestjs/swagger';
 import {
   Controller,
   Post,
@@ -13,6 +14,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { AuthGuard } from '../common/auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 
+@ApiExcludeController()
 @Controller('discussions/:discussionId')
 @UseGuards(AuthGuard)
 export class DiscussionLikesController {

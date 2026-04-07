@@ -1,3 +1,4 @@
+import { ApiExcludeController } from '@nestjs/swagger';
 import {
   Controller,
   Get,
@@ -15,6 +16,7 @@ import { Observable } from 'rxjs';
 import { NotificationsService } from './notifications.service';
 import { AuthGuard } from '../common/auth.guard';
 
+@ApiExcludeController()
 @Controller('notifications')
 @UseGuards(AuthGuard)
 export class NotificationsController {

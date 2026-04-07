@@ -7,12 +7,14 @@ import {
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DiscussionLikesService } from './discussion-likes.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { AuthGuardApi } from '../common/auth-api.guard';
 import { PrismaService } from '../prisma/prisma.service';
 
+@ApiTags('Лайки')
 @Controller('api/discussions/:discussionId')
 @UseGuards(AuthGuardApi)
 export class DiscussionLikesApiController {
@@ -23,6 +25,7 @@ export class DiscussionLikesApiController {
   ) {}
 
   @Post('like')
+  @ApiOperation({ summary: 'Поставить лайк обсуждению' })
   async like(
     @Param('discussionId', ParseIntPipe) discussionId: number,
     @Req() req: Request,
@@ -46,6 +49,7 @@ export class DiscussionLikesApiController {
   }
 
   @Delete('like')
+  @ApiOperation({ summary: 'Убрать лайк с обсуждения' })
   async unlike(
     @Param('discussionId', ParseIntPipe) discussionId: number,
     @Req() req: Request,

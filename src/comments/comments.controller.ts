@@ -1,3 +1,4 @@
+import { ApiExcludeController } from '@nestjs/swagger';
 import {
   Controller,
   Get,
@@ -21,6 +22,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { AuthGuard } from '../common/auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 
+@ApiExcludeController()
 @Controller('discussions/:discussionId/comments')
 @UseGuards(AuthGuard)
 export class CommentsController {

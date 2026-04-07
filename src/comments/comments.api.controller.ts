@@ -16,6 +16,7 @@ import {
   BadRequestException,
   DefaultValuePipe,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -25,6 +26,7 @@ import { AuthGuardApi } from '../common/auth-api.guard';
 import { setPaginationHeaders } from '../common/pagination';
 import { PrismaService } from '../prisma/prisma.service';
 
+@ApiTags('Комментарии')
 @Controller('api/discussions/:discussionId/comments')
 export class CommentsApiController {
   constructor(
@@ -34,6 +36,9 @@ export class CommentsApiController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'Получить комментарии обсуждения' })
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
   async findAll(
     @Param('discussionId', ParseIntPipe) discussionId: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -46,6 +51,7 @@ export class CommentsApiController {
   }
 
   @Get(':commentId')
+  @ApiOperation({ summary: 'Получить комментарий по ID' })
   async findOne(
     @Param('discussionId', ParseIntPipe) discussionId: number,
     @Param('commentId', ParseIntPipe) commentId: number,
@@ -59,6 +65,7 @@ export class CommentsApiController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'Создать комментарий' })
   @UseGuards(AuthGuardApi)
   async create(
     @Param('discussionId', ParseIntPipe) discussionId: number,
@@ -88,6 +95,7 @@ export class CommentsApiController {
   }
 
   @Patch(':commentId')
+  @ApiOperation({ summary: 'Обновить комментарий' })
   @UseGuards(AuthGuardApi)
   async update(
     @Param('discussionId', ParseIntPipe) discussionId: number,
@@ -105,6 +113,7 @@ export class CommentsApiController {
   }
 
   @Delete(':commentId')
+  @ApiOperation({ summary: 'Удалить комментарий' })
   @UseGuards(AuthGuardApi)
   async delete(
     @Param('discussionId', ParseIntPipe) discussionId: number,

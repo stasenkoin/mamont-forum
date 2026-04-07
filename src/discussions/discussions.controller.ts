@@ -1,3 +1,4 @@
+import { ApiExcludeController } from '@nestjs/swagger';
 import {
   Controller,
   Get,
@@ -18,6 +19,7 @@ import { CreateDiscussionDto } from './dto/create-discussion.dto';
 import { UpdateDiscussionDto } from './dto/update-discussion.dto';
 import { AuthGuard } from '../common/auth.guard';
 
+@ApiExcludeController()
 @Controller('discussions')
 export class DiscussionsController {
   constructor(private discussionsService: DiscussionsService) {}

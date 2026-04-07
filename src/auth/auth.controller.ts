@@ -1,3 +1,4 @@
+import { ApiExcludeController } from '@nestjs/swagger';
 import {
   Controller,
   Get,
@@ -14,6 +15,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from '../common/auth.guard';
 
+@ApiExcludeController()
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

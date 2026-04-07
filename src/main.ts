@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { join } from 'path';
 import { readFileSync, readdirSync } from 'fs';
 import hbs from 'hbs';
@@ -23,6 +24,14 @@ async function bootstrap() {
     const content = readFileSync(join(partialsDir, filename), 'utf-8');
     hbs.handlebars.registerPartial(name, content);
   }
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Mamont Forum API')
+    .setDescription('REST API форума Mamont')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document);
 
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.useGlobalFilters(new PrismaExceptionFilter());
