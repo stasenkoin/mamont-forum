@@ -17,6 +17,23 @@ export class DiscussionsService {
     });
   }
 
+  async findAllPaginated(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prisma.discussion.findMany({
+        include: {
+          author: true,
+          _count: { select: { comments: true, likes: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.discussion.count(),
+    ]);
+    return { items, total, page, limit };
+  }
+
   async findOne(id: number) {
     return this.prisma.discussion.findUnique({
       where: { id },
