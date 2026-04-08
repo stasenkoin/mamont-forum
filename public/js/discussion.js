@@ -46,13 +46,26 @@ document.addEventListener('DOMContentLoaded', function () {
       })
         .then(function (r) { return r.json(); })
         .then(function (comment) {
+          var nickname = comment.author ? comment.author.nickname : 'Вы';
+          var now = new Date().toLocaleDateString('ru-RU', {
+            day: 'numeric', month: 'long', year: 'numeric',
+            hour: '2-digit', minute: '2-digit',
+          });
+
           var div = document.createElement('div');
           div.className = 'comment';
           div.id = 'comment-' + comment.id;
           div.dataset.commentId = comment.id;
           div.innerHTML =
-            '<div class="comment-header"><strong>' + (comment.author ? comment.author.nickname : 'Вы') + '</strong></div>' +
-            '<p>' + comment.content + '</p>';
+            '<div class="comment-header">' +
+              '<strong>' + nickname + '</strong>' +
+              '<span class="meta">' + now + '</span>' +
+            '</div>' +
+            '<p>' + comment.content + '</p>' +
+            '<div class="comment-actions">' +
+              '<a href="/discussions/' + discussionId + '/comments/' + comment.id + '/edit" class="btn btn-sm">Редактировать</a>' +
+              '<button class="btn btn-sm btn-danger delete-comment-btn" onclick="deleteComment(' + discussionId + ', ' + comment.id + ')">Удалить</button>' +
+            '</div>';
           commentsList.appendChild(div);
           textarea.value = '';
 
