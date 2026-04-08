@@ -36,6 +36,18 @@
     {{/each}}
   </div>
 
+  {{#if totalPages}}
+    <div class="pagination">
+      {{#if hasPrev}}
+        <a href="/discussions/{{discussion.id}}?page={{prevPage}}" class="btn btn-sm">&larr; Назад</a>
+      {{/if}}
+      <span class="pagination-info">Страница {{currentPage}} из {{totalPages}}</span>
+      {{#if hasNext}}
+        <a href="/discussions/{{discussion.id}}?page={{nextPage}}" class="btn btn-sm">Вперёд &rarr;</a>
+      {{/if}}
+    </div>
+  {{/if}}
+
   {{#if user}}
     <form class="form" id="comment-form">
       <h3>Оставить комментарий</h3>

@@ -34,7 +34,9 @@ export class NotificationsApiController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
-    const all = await this.notificationsService.findAllForUser(req.session.userId);
+    const all = await this.notificationsService.findAllForUser(
+      req.session.userId,
+    );
     const total = all.length;
     const start = (page - 1) * limit;
     setPaginationHeaders(res, '/api/notifications', page, limit, total);

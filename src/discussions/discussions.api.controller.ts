@@ -45,7 +45,7 @@ export class DiscussionsApiController {
   @Get(':id')
   @ApiOperation({ summary: 'Получить обсуждение по ID' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
-    const discussion = await this.discussionsService.findOne(id);
+    const discussion = await this.discussionsService.findOne(id, 1, 1000);
     if (!discussion) throw new NotFoundException();
     return discussion;
   }
@@ -60,11 +60,10 @@ export class DiscussionsApiController {
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Res() res: Response,
   ) {
-    const discussion = await this.discussionsService.findOne(id);
+    const discussion = await this.discussionsService.findOne(id, page, limit);
     if (!discussion) throw new NotFoundException();
-    setPaginationHeaders(res, `/api/discussions/${id}/comments`, page, limit, discussion.comments.length);
-    const start = (page - 1) * limit;
-    res.json(discussion.comments.slice(start, start + limit));
+    setPaginationHeaders(res, `/api/discussions/${id}/comments`, page, limit, discussion._count.comments);
+    res.json(discussion.comments);
   }
 
   @Post()

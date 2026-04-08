@@ -339,6 +339,19 @@ main {
   padding: 40px;
 }
 
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.pagination-info {
+  color: #888;
+  font-size: 0.9rem;
+}
+
 .danger-zone {
   margin-top: 30px;
   padding: 20px;

@@ -103,7 +103,9 @@ export class CommentsApiController {
     @Body() dto: UpdateCommentDto,
     @Req() req: Request,
   ) {
-    if (!(await this.commentsService.belongsToDiscussion(commentId, discussionId))) {
+    if (
+      !(await this.commentsService.belongsToDiscussion(commentId, discussionId))
+    ) {
       throw new BadRequestException();
     }
     if (!(await this.commentsService.isAuthor(commentId, req.session.userId))) {
@@ -120,7 +122,9 @@ export class CommentsApiController {
     @Param('commentId', ParseIntPipe) commentId: number,
     @Req() req: Request,
   ) {
-    if (!(await this.commentsService.belongsToDiscussion(commentId, discussionId))) {
+    if (
+      !(await this.commentsService.belongsToDiscussion(commentId, discussionId))
+    ) {
       throw new BadRequestException();
     }
     if (!(await this.commentsService.isAuthor(commentId, req.session.userId))) {

@@ -34,7 +34,8 @@ export class DiscussionsService {
     return { items, total, page, limit };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, commentsPage = 1, commentsLimit = 5) {
+    const skip = (commentsPage - 1) * commentsLimit;
     return this.prisma.discussion.findUnique({
       where: { id },
       include: {
@@ -42,6 +43,8 @@ export class DiscussionsService {
         comments: {
           include: { author: true },
           orderBy: { createdAt: 'asc' },
+          skip,
+          take: commentsLimit,
         },
         likes: true,
         _count: { select: { comments: true, likes: true } },

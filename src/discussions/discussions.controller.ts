@@ -5,6 +5,7 @@ import {
   Post,
   Body,
   Param,
+  Query,
   Req,
   Res,
   Render,
@@ -12,6 +13,7 @@ import {
   ForbiddenException,
   NotFoundException,
   ParseIntPipe,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { DiscussionsService } from './discussions.service';
@@ -58,10 +60,12 @@ export class DiscussionsController {
   @Get(':id')
   async show(
     @Param('id', ParseIntPipe) id: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Req() req: Request,
     @Res() res: Response,
   ) {
-    const discussion = await this.discussionsService.findOne(id);
+    const limit = 5;
+    const discussion = await this.discussionsService.findOne(id, page, limit);
     if (!discussion) throw new NotFoundException();
     const userId = req.session.userId;
     const userLiked = userId
@@ -69,11 +73,20 @@ export class DiscussionsController {
       : false;
     const isAuthor = userId ? discussion.authorId === userId : false;
 
+    const totalComments = discussion._count.comments;
+    const totalPages = Math.ceil(totalComments / limit);
+
     res.render('discussions/show', {
       discussion,
       userLiked,
       isAuthor,
       user: userId ? req.session : null,
+      currentPage: page,
+      totalPages,
+      hasPrev: page > 1,
+      hasNext: page < totalPages,
+      prevPage: page - 1,
+      nextPage: page + 1,
     });
   }
 
