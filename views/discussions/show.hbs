@@ -30,23 +30,20 @@
 <section id="comments">
   <h2 id="comments-heading">Комментарии ({{discussion._count.comments}})</h2>
 
-  <div id="comments-list">
+  <div id="comments-list"
+       data-page="{{currentPage}}"
+       data-total-pages="{{totalPages}}"
+       data-user-id="{{user.userId}}">
     {{#each discussion.comments}}
       {{> comment-card showActions=(eq this.authorId ../user.userId)}}
     {{/each}}
   </div>
 
-  {{#if totalPages}}
-    <div class="pagination">
-      {{#if hasPrev}}
-        <a href="/discussions/{{discussion.id}}?page={{prevPage}}" class="btn btn-sm">&larr; Назад</a>
-      {{/if}}
-      <span class="pagination-info">Страница {{currentPage}} из {{totalPages}}</span>
-      {{#if hasNext}}
-        <a href="/discussions/{{discussion.id}}?page={{nextPage}}" class="btn btn-sm">Вперёд &rarr;</a>
-      {{/if}}
-    </div>
-  {{/if}}
+  <div class="pagination" id="comments-pagination">
+    <button class="btn btn-sm" id="prev-page-btn">&larr; Назад</button>
+    <span class="pagination-info" id="page-info">Страница {{currentPage}} из {{totalPages}}</span>
+    <button class="btn btn-sm" id="next-page-btn">Вперёд &rarr;</button>
+  </div>
 
   {{#if user}}
     <form class="form" id="comment-form">

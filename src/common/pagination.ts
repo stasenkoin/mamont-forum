@@ -23,4 +23,5 @@ export function setPaginationHeaders(
     res.setHeader('Link', links.join(', '));
   }
   res.setHeader('X-Total-Count', total.toString());
+  res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count, Link');
 }
