@@ -15,11 +15,14 @@ import {
   ForbiddenException,
   DefaultValuePipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { DiscussionsService } from './discussions.service';
 import { CreateDiscussionDto } from './dto/create-discussion.dto';
 import { UpdateDiscussionDto } from './dto/update-discussion.dto';
+import { DiscussionResponseDto } from './dto/discussion-response.dto';
+import { CommentResponseDto } from '../comments/dto/comment-response.dto';
+import { MessageResponseDto } from '../auth/dto/user-response.dto';
 import { AuthGuardApi } from '../common/auth-api.guard';
 import { setPaginationHeaders } from '../common/pagination';
 
@@ -32,6 +35,7 @@ export class DiscussionsApiController {
   @ApiOperation({ summary: 'Получить список обсуждений' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiResponse({ status: 200, description: 'Список обсуждений', type: [DiscussionResponseDto] })
   async findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -44,6 +48,8 @@ export class DiscussionsApiController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Получить обсуждение по ID' })
+  @ApiResponse({ status: 200, description: 'Обсуждение найдено', type: DiscussionResponseDto })
+  @ApiResponse({ status: 404, description: 'Обсуждение не найдено' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const discussion = await this.discussionsService.findOne(id, 1, 1000);
     if (!discussion) throw new NotFoundException();
@@ -54,6 +60,8 @@ export class DiscussionsApiController {
   @ApiOperation({ summary: 'Получить комментарии обсуждения' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiResponse({ status: 200, description: 'Список комментариев', type: [CommentResponseDto] })
+  @ApiResponse({ status: 404, description: 'Обсуждение не найдено' })
   async findComments(
     @Param('id', ParseIntPipe) id: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -68,6 +76,9 @@ export class DiscussionsApiController {
 
   @Post()
   @ApiOperation({ summary: 'Создать обсуждение' })
+  @ApiResponse({ status: 201, description: 'Обсуждение создано', type: DiscussionResponseDto })
+  @ApiResponse({ status: 400, description: 'Некорректные данные' })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @UseGuards(AuthGuardApi)
   async create(@Body() dto: CreateDiscussionDto, @Req() req: Request) {
     return this.discussionsService.create(dto, req.session.userId);
@@ -75,6 +86,11 @@ export class DiscussionsApiController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Обновить обсуждение' })
+  @ApiResponse({ status: 200, description: 'Обсуждение обновлено', type: DiscussionResponseDto })
+  @ApiResponse({ status: 400, description: 'Некорректные данные' })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 403, description: 'Нет прав (не автор)' })
+  @ApiResponse({ status: 404, description: 'Обсуждение не найдено' })
   @UseGuards(AuthGuardApi)
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -89,6 +105,10 @@ export class DiscussionsApiController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Удалить обсуждение' })
+  @ApiResponse({ status: 200, description: 'Обсуждение удалено', type: MessageResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 403, description: 'Нет прав (не автор)' })
+  @ApiResponse({ status: 404, description: 'Обсуждение не найдено' })
   @UseGuards(AuthGuardApi)
   async delete(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     if (!(await this.discussionsService.isAuthor(id, req.session.userId))) {

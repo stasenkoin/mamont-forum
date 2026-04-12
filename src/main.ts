@@ -27,11 +27,14 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Mamont Forum API')
-    .setDescription('REST API форума Mamont')
+    .setDescription('REST API форума Mamont. Для авторизации: вызовите POST /api/auth/login, cookie установится автоматически.')
     .setVersion('1.0')
+    .addCookieAuth('connect.sid')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: { withCredentials: true },
+  });
 
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.useGlobalFilters(new PrismaExceptionFilter());

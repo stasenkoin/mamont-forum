@@ -7,12 +7,15 @@ export class RegisterDto {
   @IsNotEmpty()
   nickname: string;
 
-  @ApiProperty({ description: 'Пароль', example: 'secret123' })
+  @ApiProperty({ description: 'Пароль', example: 'qwerty123' })
   @IsString()
   @IsNotEmpty()
   password: string;
 
-  @ApiPropertyOptional({ description: 'URL аватара', example: 'https://example.com/avatar.png' })
+  @ApiPropertyOptional({
+    description: 'URL аватара',
+    example: 'https://example.com/avatar.png',
+  })
   @IsString()
   @IsOptional()
   avatarUrl?: string;

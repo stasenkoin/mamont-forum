@@ -1,47 +1,58 @@
-<article class="discussion-detail" data-discussion-id="{{discussion.id}}">
+<article class="discussion-detail">
   <h1>{{discussion.title}}</h1>
-  <div class="meta">
-    {{#if discussion.author}}{{discussion.author.nickname}}{{else}}Удалённый пользователь{{/if}}
-    &middot; {{formatDate discussion.createdAt}}
-  </div>
-  <div class="discussion-content">
-    <p>{{discussion.content}}</p>
-  </div>
+  <div class="meta">{{discussion.author.nickname}} &middot; {{formatDate discussion.createdAt}}</div>
+  <div class="discussion-content"><p>{{discussion.content}}</p></div>
 
-  <div class="like-section">
+  <div class="like-section" id="like-section"
+       data-discussion-id="{{discussion.id}}"
+       data-user-id="{{user.userId}}"
+       data-liked="{{userLiked}}"
+       data-like-count="{{discussion._count.likes}}">
     {{#if user}}
-      <button id="like-btn" class="btn btn-sm {{#if userLiked}}btn-liked{{/if}}" data-liked="{{userLiked}}">
+      <button id="like-btn" class="btn btn-sm {{#if userLiked}}btn-liked{{/if}}">
         {{#if userLiked}}&#10084; Убрать лайк{{else}}&#9825; Лайк{{/if}}
       </button>
     {{/if}}
     <span id="like-count">&#10084; {{discussion._count.likes}}</span>
   </div>
 
-  {{#if isAuthor}}
-    <div class="author-actions">
-      <a href="/discussions/{{discussion.id}}/edit" class="btn btn-sm">Редактировать</a>
-      <form action="/discussions/{{discussion.id}}/delete" method="POST" style="display:inline">
-        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Удалить обсуждение?')">Удалить</button>
-      </form>
-    </div>
+  {{#if user}}
+    {{#if (eq user.userId discussion.authorId)}}
+      <div class="author-actions">
+        <a href="/discussions/{{discussion.id}}/edit" class="btn btn-sm">Редактировать</a>
+        <button class="btn btn-sm btn-danger" id="delete-discussion-btn">Удалить</button>
+      </div>
+    {{/if}}
   {{/if}}
 </article>
 
-<section id="comments">
-  <h2 id="comments-heading">Комментарии ({{discussion._count.comments}})</h2>
+<section id="comments"
+         data-discussion-id="{{discussion.id}}"
+         data-user-id="{{user.userId}}"
+         data-total-comments="{{totalComments}}">
+  <h2 id="comments-heading">Комментарии ({{totalComments}})</h2>
 
-  <div id="comments-list"
-       data-page="{{currentPage}}"
-       data-total-pages="{{totalPages}}"
-       data-user-id="{{user.userId}}">
+  <div id="comments-list">
     {{#each discussion.comments}}
-      {{> comment-card showActions=(eq this.authorId ../user.userId)}}
+      <div class="comment" id="comment-{{this.id}}">
+        <div class="comment-header">
+          <strong>{{this.author.nickname}}</strong>
+          <span class="meta">{{formatDate this.createdAt}}</span>
+        </div>
+        <p>{{this.content}}</p>
+        {{#if (eq this.authorId ../user.userId)}}
+          <div class="comment-actions">
+            <a href="/discussions/{{../discussion.id}}/comments/{{this.id}}/edit" class="btn btn-sm">Редактировать</a>
+            <button class="btn btn-sm btn-danger delete-comment-btn" data-id="{{this.id}}">Удалить</button>
+          </div>
+        {{/if}}
+      </div>
     {{/each}}
   </div>
 
   <div class="pagination" id="comments-pagination">
     <button class="btn btn-sm" id="prev-page-btn">&larr; Назад</button>
-    <span class="pagination-info" id="page-info">Страница {{currentPage}} из {{totalPages}}</span>
+    <span class="pagination-info" id="page-info"></span>
     <button class="btn btn-sm" id="next-page-btn">Вперёд &rarr;</button>
   </div>
 

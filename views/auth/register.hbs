@@ -1,8 +1,6 @@
 <h1>Регистрация</h1>
-{{#if error}}
-  <div class="alert alert-error">{{error}}</div>
-{{/if}}
-<form action="/auth/register" method="POST" class="form">
+<div class="alert alert-error" id="error-msg" style="display:none"></div>
+<form class="form" id="register-form">
   <label for="nickname">Никнейм</label>
   <input type="text" name="nickname" id="nickname" required>
 
@@ -15,3 +13,5 @@
   <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
   <p>Уже есть аккаунт? <a href="/auth/login">Войти</a></p>
 </form>
+
+<script src="/js/register.js"></script>

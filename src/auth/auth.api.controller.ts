@@ -9,11 +9,12 @@ import {
   ConflictException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { AuthResponseDto, UserResponseDto, MessageResponseDto } from './dto/user-response.dto';
 import { AuthGuardApi } from '../common/auth-api.guard';
 
 @ApiTags('Авторизация')
@@ -23,6 +24,9 @@ export class AuthApiController {
 
   @Post('register')
   @ApiOperation({ summary: 'Регистрация нового пользователя' })
+  @ApiResponse({ status: 201, description: 'Пользователь создан', type: AuthResponseDto })
+  @ApiResponse({ status: 400, description: 'Некорректные данные' })
+  @ApiResponse({ status: 409, description: 'Никнейм уже занят' })
   async register(@Body() dto: RegisterDto, @Req() req: Request) {
     if (await this.authService.nicknameExists(dto.nickname)) {
       throw new ConflictException('Этот никнейм уже занят');
@@ -36,6 +40,9 @@ export class AuthApiController {
 
   @Post('login')
   @ApiOperation({ summary: 'Вход в аккаунт' })
+  @ApiResponse({ status: 201, description: 'Успешный вход', type: AuthResponseDto })
+  @ApiResponse({ status: 400, description: 'Некорректные данные' })
+  @ApiResponse({ status: 401, description: 'Неверный никнейм или пароль' })
   async login(@Body() dto: LoginDto, @Req() req: Request) {
     const user = await this.authService.validateUser(
       dto.nickname,
@@ -52,6 +59,8 @@ export class AuthApiController {
 
   @Post('logout')
   @ApiOperation({ summary: 'Выход из аккаунта' })
+  @ApiResponse({ status: 201, description: 'Выход выполнен', type: MessageResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @UseGuards(AuthGuardApi)
   logout(@Req() req: Request) {
     return new Promise<{ message: string }>((resolve) => {
@@ -63,6 +72,8 @@ export class AuthApiController {
 
   @Get('me')
   @ApiOperation({ summary: 'Получить данные текущего пользователя' })
+  @ApiResponse({ status: 200, description: 'Данные пользователя', type: UserResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @UseGuards(AuthGuardApi)
   async me(@Req() req: Request) {
     const user = await this.authService.findById(req.session.userId);
@@ -79,6 +90,8 @@ export class AuthApiController {
 
   @Delete('me')
   @ApiOperation({ summary: 'Удалить свой аккаунт' })
+  @ApiResponse({ status: 200, description: 'Аккаунт удалён', type: MessageResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @UseGuards(AuthGuardApi)
   async deleteAccount(@Req() req: Request) {
     const userId = req.session.userId;

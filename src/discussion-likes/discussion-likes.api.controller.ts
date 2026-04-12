@@ -7,10 +7,12 @@ import {
   UseGuards,
   ParseIntPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Request } from 'express';
 import { DiscussionLikesService } from './discussion-likes.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { LikeResponseDto } from './dto/like-response.dto';
+import { MessageResponseDto } from '../auth/dto/user-response.dto';
 import { AuthGuardApi } from '../common/auth-api.guard';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -26,6 +28,9 @@ export class DiscussionLikesApiController {
 
   @Post('like')
   @ApiOperation({ summary: 'Поставить лайк обсуждению' })
+  @ApiResponse({ status: 201, description: 'Лайк поставлен', type: LikeResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 409, description: 'Лайк уже поставлен' })
   async like(
     @Param('discussionId', ParseIntPipe) discussionId: number,
     @Req() req: Request,
@@ -50,6 +55,9 @@ export class DiscussionLikesApiController {
 
   @Delete('like')
   @ApiOperation({ summary: 'Убрать лайк с обсуждения' })
+  @ApiResponse({ status: 200, description: 'Лайк убран', type: MessageResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 404, description: 'Лайк не найден' })
   async unlike(
     @Param('discussionId', ParseIntPipe) discussionId: number,
     @Req() req: Request,

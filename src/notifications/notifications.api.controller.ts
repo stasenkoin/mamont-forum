@@ -12,9 +12,11 @@ import {
   ForbiddenException,
   DefaultValuePipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { NotificationsService } from './notifications.service';
+import { NotificationResponseDto } from './dto/notification-response.dto';
+import { MessageResponseDto } from '../auth/dto/user-response.dto';
 import { AuthGuardApi } from '../common/auth-api.guard';
 import { setPaginationHeaders } from '../common/pagination';
 
@@ -28,6 +30,8 @@ export class NotificationsApiController {
   @ApiOperation({ summary: 'Получить список уведомлений' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiResponse({ status: 200, description: 'Список уведомлений', type: [NotificationResponseDto] })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   async findAll(
     @Req() req: Request,
     @Res() res: Response,
@@ -45,6 +49,9 @@ export class NotificationsApiController {
 
   @Post(':id/read')
   @ApiOperation({ summary: 'Отметить уведомление как прочитанное' })
+  @ApiResponse({ status: 201, description: 'Уведомление прочитано', type: NotificationResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 403, description: 'Нет прав (чужое уведомление)' })
   async markAsRead(
     @Param('id', ParseIntPipe) id: number,
     @Req() req: Request,
@@ -57,6 +64,8 @@ export class NotificationsApiController {
 
   @Post('read-all')
   @ApiOperation({ summary: 'Отметить все уведомления как прочитанные' })
+  @ApiResponse({ status: 201, description: 'Все уведомления прочитаны', type: MessageResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   async markAllAsRead(@Req() req: Request) {
     await this.notificationsService.markAllAsRead(req.session.userId);
     return { message: 'Все уведомления прочитаны' };
@@ -64,6 +73,9 @@ export class NotificationsApiController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Удалить уведомление' })
+  @ApiResponse({ status: 200, description: 'Уведомление удалено', type: MessageResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 403, description: 'Нет прав (чужое уведомление)' })
   async delete(
     @Param('id', ParseIntPipe) id: number,
     @Req() req: Request,

@@ -16,11 +16,13 @@ import {
   BadRequestException,
   DefaultValuePipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { CommentResponseDto } from './dto/comment-response.dto';
+import { MessageResponseDto } from '../auth/dto/user-response.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { AuthGuardApi } from '../common/auth-api.guard';
 import { setPaginationHeaders } from '../common/pagination';
@@ -39,6 +41,7 @@ export class CommentsApiController {
   @ApiOperation({ summary: 'Получить комментарии обсуждения' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiResponse({ status: 200, description: 'Список комментариев', type: [CommentResponseDto] })
   async findAll(
     @Param('discussionId', ParseIntPipe) discussionId: number,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -52,6 +55,9 @@ export class CommentsApiController {
 
   @Get(':commentId')
   @ApiOperation({ summary: 'Получить комментарий по ID' })
+  @ApiResponse({ status: 200, description: 'Комментарий найден', type: CommentResponseDto })
+  @ApiResponse({ status: 400, description: 'Комментарий не принадлежит обсуждению' })
+  @ApiResponse({ status: 404, description: 'Комментарий не найден' })
   async findOne(
     @Param('discussionId', ParseIntPipe) discussionId: number,
     @Param('commentId', ParseIntPipe) commentId: number,
@@ -66,6 +72,9 @@ export class CommentsApiController {
 
   @Post()
   @ApiOperation({ summary: 'Создать комментарий' })
+  @ApiResponse({ status: 201, description: 'Комментарий создан', type: CommentResponseDto })
+  @ApiResponse({ status: 400, description: 'Некорректные данные' })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
   @UseGuards(AuthGuardApi)
   async create(
     @Param('discussionId', ParseIntPipe) discussionId: number,
@@ -96,6 +105,10 @@ export class CommentsApiController {
 
   @Patch(':commentId')
   @ApiOperation({ summary: 'Обновить комментарий' })
+  @ApiResponse({ status: 200, description: 'Комментарий обновлён', type: CommentResponseDto })
+  @ApiResponse({ status: 400, description: 'Некорректные данные' })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 403, description: 'Нет прав (не автор)' })
   @UseGuards(AuthGuardApi)
   async update(
     @Param('discussionId', ParseIntPipe) discussionId: number,
@@ -116,6 +129,9 @@ export class CommentsApiController {
 
   @Delete(':commentId')
   @ApiOperation({ summary: 'Удалить комментарий' })
+  @ApiResponse({ status: 200, description: 'Комментарий удалён', type: MessageResponseDto })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  @ApiResponse({ status: 403, description: 'Нет прав (не автор)' })
   @UseGuards(AuthGuardApi)
   async delete(
     @Param('discussionId', ParseIntPipe) discussionId: number,

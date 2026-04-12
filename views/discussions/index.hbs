@@ -7,7 +7,18 @@
 
 {{#if discussions.length}}
   {{#each discussions}}
-    {{> discussion-card}}
+    <div class="card">
+      <div class="card-header">
+        <h3><a href="/discussions/{{this.id}}">{{this.title}}</a></h3>
+        <span class="meta">{{this.author.nickname}} &middot; {{formatDate this.createdAt}}</span>
+      </div>
+      <p class="card-text">{{truncate this.content 200}}</p>
+      <div class="card-footer">
+        <span>&#128172; {{this._count.comments}}</span>
+        <span>&#10084; {{this._count.likes}}</span>
+        <a href="/discussions/{{this.id}}" class="btn btn-sm">Открыть обсуждение</a>
+      </div>
+    </div>
   {{/each}}
 {{else}}
   <p class="empty">Пока нет обсуждений. Будьте первым!</p>
