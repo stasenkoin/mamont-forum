@@ -1,5 +1,6 @@
 <h1>Новое обсуждение</h1>
-<form action="/discussions" method="POST" class="form">
+<div class="alert alert-error" id="error-msg" style="display:none"></div>
+<form class="form" id="create-discussion-form">
   <label for="title">Заголовок</label>
   <input type="text" name="title" id="title" required>
 
@@ -8,3 +9,5 @@
 
   <button type="submit" class="btn btn-primary">Создать</button>
 </form>
+
+<script src="/js/discussion-new.js"></script>

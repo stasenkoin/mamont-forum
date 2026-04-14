@@ -44,6 +44,22 @@ main {
   text-decoration: none;
 }
 
+.header-links {
+  display: flex;
+  gap: 18px;
+}
+
+.header-links a {
+  color: #555;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.header-links a:hover {
+  color: #111;
+}
+
 .header-nav {
   display: flex;
   align-items: center;
@@ -135,8 +151,13 @@ main {
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 16px;
+  padding: 16px 20px;
   margin-bottom: 12px;
+}
+
+.card ul {
+  padding-left: 20px;
+  margin: 8px 0;
 }
 
 .card-header h3 {
@@ -337,6 +358,19 @@ main {
   text-align: center;
   color: #888;
   padding: 40px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.pagination-info {
+  color: #888;
+  font-size: 0.9rem;
 }
 
 .danger-zone {

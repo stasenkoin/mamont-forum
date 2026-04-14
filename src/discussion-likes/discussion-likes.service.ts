@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -9,7 +13,9 @@ export class DiscussionLikesService {
     const existing = await this.prisma.discussionLike.findUnique({
       where: { userId_discussionId: { userId, discussionId } },
     });
-    if (existing) return existing;
+    if (existing) {
+      throw new ConflictException('Лайк уже поставлен');
+    }
     return this.prisma.discussionLike.create({
       data: { userId, discussionId },
     });
@@ -19,7 +25,9 @@ export class DiscussionLikesService {
     const existing = await this.prisma.discussionLike.findUnique({
       where: { userId_discussionId: { userId, discussionId } },
     });
-    if (!existing) return;
+    if (!existing) {
+      throw new NotFoundException('Лайк не найден');
+    }
     return this.prisma.discussionLike.delete({
       where: { userId_discussionId: { userId, discussionId } },
     });

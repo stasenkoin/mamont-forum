@@ -7,7 +7,7 @@ export function setPaginationHeaders(
   limit: number,
   total: number,
 ) {
-  const totalPages = Math.ceil(total / limit);
+  const totalPages = Math.ceil(total / limit) || 1;
   const links: string[] = [];
 
   if (page > 1) {
@@ -23,4 +23,5 @@ export function setPaginationHeaders(
     res.setHeader('Link', links.join(', '));
   }
   res.setHeader('X-Total-Count', total.toString());
+  res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count, Link');
 }

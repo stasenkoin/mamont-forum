@@ -1,8 +1,11 @@
 <h1>Редактирование комментария</h1>
-<form action="/discussions/{{discussionId}}/comments/{{comment.id}}/update" method="POST" class="form">
+<div class="alert alert-error" id="error-msg" style="display:none"></div>
+<form class="form" id="edit-comment-form" data-discussion-id="{{discussionId}}" data-comment-id="{{commentId}}">
   <label for="content">Комментарий</label>
-  <textarea name="content" id="content" rows="6" required>{{comment.content}}</textarea>
+  <textarea name="content" id="content" rows="6" required></textarea>
 
   <button type="submit" class="btn btn-primary">Сохранить</button>
   <a href="/discussions/{{discussionId}}" class="btn btn-outline">Отмена</a>
 </form>
+
+<script src="/js/comment-edit.js"></script>

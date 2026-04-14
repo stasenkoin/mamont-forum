@@ -1,11 +1,14 @@
 <h1>Редактирование обсуждения</h1>
-<form action="/discussions/{{discussion.id}}/update" method="POST" class="form">
+<div class="alert alert-error" id="error-msg" style="display:none"></div>
+<form class="form" id="edit-discussion-form" data-id="{{discussionId}}">
   <label for="title">Заголовок</label>
-  <input type="text" name="title" id="title" value="{{discussion.title}}" required>
+  <input type="text" name="title" id="title" required>
 
   <label for="content">Содержание</label>
-  <textarea name="content" id="content" rows="8" required>{{discussion.content}}</textarea>
+  <textarea name="content" id="content" rows="8" required></textarea>
 
   <button type="submit" class="btn btn-primary">Сохранить</button>
-  <a href="/discussions/{{discussion.id}}" class="btn btn-outline">Отмена</a>
+  <a href="/discussions/{{discussionId}}" class="btn btn-outline">Отмена</a>
 </form>
+
+<script src="/js/discussion-edit.js"></script>
