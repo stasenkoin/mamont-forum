@@ -1,21 +1,12 @@
 <h1>Настройки аккаунта</h1>
-<div class="card">
-  <p><strong>Никнейм:</strong> {{account.nickname}}</p>
-  {{#if account.avatarUrl}}
-    <p><strong>Аватар:</strong></p>
-    <img src="{{account.avatarUrl}}" alt="avatar" class="avatar-lg">
-  {{/if}}
-  <p><strong>Зарегистрирован:</strong> {{formatDate account.createdAt}}</p>
+<div class="card" id="account-info">
+  <p class="empty">Загрузка...</p>
 </div>
 
 <div class="danger-zone">
   <h2>Опасная зона</h2>
-  <form action="/auth/logout" method="POST" style="display:inline">
-    <button type="submit" class="btn btn-outline">Выйти из аккаунта</button>
-  </form>
-  <form action="/account/delete" method="POST" style="display:inline">
-    <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены? Это действие нельзя отменить. Ваши обсуждения и комментарии сохранятся, но автор будет показан как удалённый пользователь.')">
-      Удалить аккаунт
-    </button>
-  </form>
+  <button class="btn btn-outline" id="logout-btn">Выйти из аккаунта</button>
+  <button class="btn btn-danger" id="delete-account-btn">Удалить аккаунт</button>
 </div>
+
+<script src="/js/account.js"></script>

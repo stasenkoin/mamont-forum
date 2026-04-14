@@ -1,11 +1,14 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { join } from 'path';
 import { readFileSync, readdirSync } from 'fs';
 import hbs from 'hbs';
 import session from 'express-session';
 import { AppModule } from './app.module';
+import { PrismaExceptionFilter } from './common/prisma-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -21,6 +24,22 @@ async function bootstrap() {
     const content = readFileSync(join(partialsDir, filename), 'utf-8');
     hbs.handlebars.registerPartial(name, content);
   }
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Mamont Forum API')
+    .setDescription(
+      'REST API форума Mamont. Для авторизации: вызовите POST /api/auth/login, cookie установится автоматически.',
+    )
+    .setVersion('1.0')
+    .addCookieAuth('connect.sid')
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: { withCredentials: true },
+  });
+
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.useGlobalFilters(new PrismaExceptionFilter());
 
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.set('view options', { layout: 'layouts/main' });

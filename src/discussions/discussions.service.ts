@@ -17,7 +17,25 @@ export class DiscussionsService {
     });
   }
 
-  async findOne(id: number) {
+  async findAllPaginated(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prisma.discussion.findMany({
+        include: {
+          author: true,
+          _count: { select: { comments: true, likes: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.discussion.count(),
+    ]);
+    return { items, total, page, limit };
+  }
+
+  async findOne(id: number, commentsPage = 1, commentsLimit = 5) {
+    const skip = (commentsPage - 1) * commentsLimit;
     return this.prisma.discussion.findUnique({
       where: { id },
       include: {
@@ -25,6 +43,8 @@ export class DiscussionsService {
         comments: {
           include: { author: true },
           orderBy: { createdAt: 'asc' },
+          skip,
+          take: commentsLimit,
         },
         likes: true,
         _count: { select: { comments: true, likes: true } },

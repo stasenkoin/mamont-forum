@@ -1,52 +1,27 @@
-<article class="discussion-detail">
-  <h1>{{discussion.title}}</h1>
-  <div class="meta">
-    {{#if discussion.author}}{{discussion.author.nickname}}{{else}}Удалённый пользователь{{/if}}
-    &middot; {{formatDate discussion.createdAt}}
+<div id="discussion-container" data-discussion-id="{{discussionId}}" data-user-id="{{user.userId}}">
+  <p class="empty">Загрузка...</p>
+</div>
+
+<section id="comments" style="display:none">
+  <h2 id="comments-heading">Комментарии</h2>
+
+  <div id="comments-list"></div>
+
+  <div class="pagination" id="comments-pagination">
+    <button class="btn btn-sm" id="prev-page-btn">&larr; Назад</button>
+    <span class="pagination-info" id="page-info"></span>
+    <button class="btn btn-sm" id="next-page-btn">Вперёд &rarr;</button>
   </div>
-  <div class="discussion-content">
-    <p>{{discussion.content}}</p>
-  </div>
-
-  <div class="like-section">
-    {{#if user}}
-      {{#if userLiked}}
-        <form action="/discussions/{{discussion.id}}/unlike" method="POST" style="display:inline">
-          <button type="submit" class="btn btn-sm btn-liked">&#10084; Убрать лайк</button>
-        </form>
-      {{else}}
-        <form action="/discussions/{{discussion.id}}/like" method="POST" style="display:inline">
-          <button type="submit" class="btn btn-sm">&#9825; Лайк</button>
-        </form>
-      {{/if}}
-    {{/if}}
-    <span>&#10084; {{discussion._count.likes}}</span>
-  </div>
-
-  {{#if isAuthor}}
-    <div class="author-actions">
-      <a href="/discussions/{{discussion.id}}/edit" class="btn btn-sm">Редактировать</a>
-      <form action="/discussions/{{discussion.id}}/delete" method="POST" style="display:inline">
-        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Удалить обсуждение?')">Удалить</button>
-      </form>
-    </div>
-  {{/if}}
-</article>
-
-<section id="comments">
-  <h2>Комментарии ({{discussion._count.comments}})</h2>
-
-  {{#each discussion.comments}}
-    {{> comment-card showActions=(eq this.authorId ../user.userId)}}
-  {{/each}}
 
   {{#if user}}
-    <form action="/discussions/{{discussion.id}}/comments" method="POST" class="form" id="comment-form">
+    <form class="form" id="comment-form">
       <h3>Оставить комментарий</h3>
-      <textarea name="content" rows="4" required placeholder="Ваш комментарий..."></textarea>
+      <textarea name="content" id="comment-content" rows="4" required placeholder="Ваш комментарий..."></textarea>
       <button type="submit" class="btn btn-primary">Отправить</button>
     </form>
   {{else}}
     <p><a href="/auth/login">Войдите</a>, чтобы оставить комментарий.</p>
   {{/if}}
 </section>
+
+<script src="/js/discussion.js"></script>

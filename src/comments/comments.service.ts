@@ -8,11 +8,30 @@ export class CommentsService {
   async create(discussionId: number, content: string, authorId: number) {
     return this.prisma.comment.create({
       data: { content, discussionId, authorId },
+      include: { author: true },
     });
   }
 
   async findOne(commentId: number) {
-    return this.prisma.comment.findUnique({ where: { id: commentId } });
+    return this.prisma.comment.findUnique({
+      where: { id: commentId },
+      include: { author: true },
+    });
+  }
+
+  async findByDiscussion(discussionId: number, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prisma.comment.findMany({
+        where: { discussionId },
+        include: { author: true },
+        orderBy: { createdAt: 'asc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.comment.count({ where: { discussionId } }),
+    ]);
+    return { items, total, page, limit };
   }
 
   async update(commentId: number, content: string) {

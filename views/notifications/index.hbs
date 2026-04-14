@@ -1,34 +1,10 @@
 <div class="page-header">
   <h1>Уведомления</h1>
-  {{#if notifications.length}}
-    <form action="/notifications/read-all" method="POST">
-      <button type="submit" class="btn btn-sm">Прочитать все</button>
-    </form>
-  {{/if}}
+  <button class="btn btn-sm" id="read-all-btn" style="display:none">Прочитать все</button>
 </div>
 
-{{#if notifications.length}}
-  {{#each notifications}}
-    <div class="notification {{#unless isRead}}notification-unread{{/unless}}">
-      <div class="notification-content">
-        <p>{{message}}</p>
-        <span class="meta">{{formatDate createdAt}}</span>
-        {{#if discussionId}}
-          <a href="/discussions/{{discussionId}}" class="btn btn-sm">Перейти</a>
-        {{/if}}
-      </div>
-      <div class="notification-actions">
-        {{#unless isRead}}
-          <form action="/notifications/{{id}}/read" method="POST" style="display:inline">
-            <button type="submit" class="btn btn-sm">Прочитано</button>
-          </form>
-        {{/unless}}
-        <form action="/notifications/{{id}}/delete" method="POST" style="display:inline">
-          <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
-        </form>
-      </div>
-    </div>
-  {{/each}}
-{{else}}
-  <p class="empty">У вас нет уведомлений.</p>
-{{/if}}
+<div id="notifications-list">
+  <p class="empty">Загрузка...</p>
+</div>
+
+<script src="/js/notifications-page.js"></script>
