@@ -27,7 +27,9 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Mamont Forum API')
-    .setDescription('REST API форума Mamont. Для авторизации: вызовите POST /api/auth/login, cookie установится автоматически.')
+    .setDescription(
+      'REST API форума Mamont. Для авторизации: вызовите POST /api/auth/login, cookie установится автоматически.',
+    )
     .setVersion('1.0')
     .addCookieAuth('connect.sid')
     .build();

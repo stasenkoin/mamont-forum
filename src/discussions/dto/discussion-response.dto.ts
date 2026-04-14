@@ -26,10 +26,16 @@ export class DiscussionResponseDto {
   @ApiProperty({ description: 'Заголовок', example: 'Как установить NestJS?' })
   title: string;
 
-  @ApiProperty({ description: 'Текст обсуждения', example: 'Подскажите, как правильно...' })
+  @ApiProperty({
+    description: 'Текст обсуждения',
+    example: 'Подскажите, как правильно...',
+  })
   content: string;
 
-  @ApiProperty({ description: 'Дата создания', example: '2026-04-10T12:00:00.000Z' })
+  @ApiProperty({
+    description: 'Дата создания',
+    example: '2026-04-10T12:00:00.000Z',
+  })
   createdAt: Date;
 
   @ApiPropertyOptional({ description: 'ID автора', example: 1 })

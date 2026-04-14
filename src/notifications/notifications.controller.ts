@@ -20,11 +20,8 @@ export class NotificationsController {
 
   @Get()
   @Render('notifications/index')
-  async list(@Req() req: Request) {
-    const notifications = await this.notificationsService.findAllForUser(
-      req.session.userId,
-    );
-    return { user: req.session, notifications };
+  list(@Req() req: Request) {
+    return { user: req.session };
   }
 
   @Get('unread-count')

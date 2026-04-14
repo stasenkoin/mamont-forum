@@ -8,6 +8,7 @@ import {
   UseGuards,
   ParseIntPipe,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { DiscussionsService } from './discussions.service';
@@ -20,12 +21,8 @@ export class DiscussionsController {
 
   @Get()
   @Render('discussions/index')
-  async list(@Req() req: Request) {
-    const discussions = await this.discussionsService.findAll();
-    return {
-      discussions,
-      user: req.session.userId ? req.session : null,
-    };
+  list(@Req() req: Request) {
+    return { user: req.session.userId ? req.session : null };
   }
 
   @Get('new')
@@ -39,16 +36,11 @@ export class DiscussionsController {
   @Render('discussions/show')
   async show(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     const discussion = await this.discussionsService.findOne(id);
-    if (!discussion) throw new NotFoundException();
-
-    const userLiked = req.session.userId
-      ? discussion.likes.some((l) => l.userId === req.session.userId)
-      : false;
-
+    if (!discussion) {
+      throw new NotFoundException('Обсуждение не найдено');
+    }
     return {
-      discussion,
-      userLiked,
-      totalComments: discussion._count.comments,
+      discussionId: id,
       user: req.session.userId ? req.session : null,
     };
   }
@@ -58,9 +50,20 @@ export class DiscussionsController {
   @Render('discussions/edit')
   async editForm(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     const discussion = await this.discussionsService.findOne(id);
-    if (!discussion) throw new NotFoundException();
+    if (!discussion) {
+      throw new NotFoundException('Обсуждение не найдено');
+    }
+    const isAuthor = await this.discussionsService.isAuthor(
+      id,
+      req.session.userId,
+    );
+    if (!isAuthor) {
+      throw new ForbiddenException(
+        'Вы не можете редактировать чужое обсуждение',
+      );
+    }
     return {
-      discussion,
+      discussionId: id,
       user: req.session,
     };
   }

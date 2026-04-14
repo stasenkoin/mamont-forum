@@ -35,11 +35,29 @@ export class NotificationsService {
     return notification;
   }
 
+  async findOne(id: number) {
+    return this.prisma.notification.findUnique({ where: { id } });
+  }
+
   async findAllForUser(userId: number) {
     return this.prisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  async findForUserPaginated(userId: number, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prisma.notification.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.notification.count({ where: { userId } }),
+    ]);
+    return { items, total };
   }
 
   async countUnread(userId: number) {

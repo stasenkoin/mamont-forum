@@ -1,6 +1,14 @@
-// Данные уже заполнены сервером, JS только отправляет форму через API
 var form = document.getElementById('edit-discussion-form');
 var id = form.dataset.id;
+
+fetch('/api/discussions/' + id)
+  .then(function (response) {
+    return response.json();
+  })
+  .then(function (discussion) {
+    document.getElementById('title').value = discussion.title;
+    document.getElementById('content').value = discussion.content;
+  });
 
 form.addEventListener('submit', function (e) {
   e.preventDefault();
@@ -13,7 +21,9 @@ form.addEventListener('submit', function (e) {
     body: JSON.stringify({ title: title, content: content }),
   })
     .then(function (r) {
-      if (!r.ok) return r.json().then(function (d) { throw d; });
+      if (!r.ok) {
+        return r.json().then(function (data) { throw data; });
+      }
       return r.json();
     })
     .then(function () {

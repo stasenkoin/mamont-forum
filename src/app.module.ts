@@ -6,6 +6,8 @@ import { DiscussionsModule } from './discussions/discussions.module';
 import { CommentsModule } from './comments/comments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { DiscussionLikesModule } from './discussion-likes/discussion-likes.module';
+import { RulesModule } from './rules/rules.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { DiscussionLikesModule } from './discussion-likes/discussion-likes.modul
     CommentsModule,
     NotificationsModule,
     DiscussionLikesModule,
+    RulesModule,
+    UsersModule,
   ],
   controllers: [AppController],
 })

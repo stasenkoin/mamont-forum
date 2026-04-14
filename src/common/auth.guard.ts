@@ -9,6 +9,7 @@ export class AuthGuard implements CanActivate {
     const response = context.switchToHttp().getResponse();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (!request.session?.userId) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
       response.redirect('/auth/login');
       return false;
     }

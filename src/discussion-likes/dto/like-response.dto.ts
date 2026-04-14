@@ -10,6 +10,9 @@ export class LikeResponseDto {
   @ApiProperty({ description: 'ID обсуждения', example: 1 })
   discussionId: number;
 
-  @ApiProperty({ description: 'Дата создания', example: '2026-04-10T12:00:00.000Z' })
+  @ApiProperty({
+    description: 'Дата создания',
+    example: '2026-04-10T12:00:00.000Z',
+  })
   createdAt: Date;
 }

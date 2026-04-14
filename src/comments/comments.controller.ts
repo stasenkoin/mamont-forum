@@ -7,6 +7,8 @@ import {
   Render,
   UseGuards,
   ParseIntPipe,
+  ForbiddenException,
+  BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
@@ -27,10 +29,33 @@ export class CommentsController {
     @Req() req: Request,
   ) {
     const comment = await this.commentsService.findOne(commentId);
-    if (!comment) throw new NotFoundException();
+    if (!comment) {
+      throw new NotFoundException('Комментарий не найден');
+    }
+
+    const belongsToDiscussion = await this.commentsService.belongsToDiscussion(
+      commentId,
+      discussionId,
+    );
+    if (!belongsToDiscussion) {
+      throw new BadRequestException(
+        'Комментарий не принадлежит этому обсуждению',
+      );
+    }
+
+    const isAuthor = await this.commentsService.isAuthor(
+      commentId,
+      req.session.userId,
+    );
+    if (!isAuthor) {
+      throw new ForbiddenException(
+        'Вы не можете редактировать чужой комментарий',
+      );
+    }
+
     return {
       discussionId,
-      comment,
+      commentId,
       user: req.session,
     };
   }

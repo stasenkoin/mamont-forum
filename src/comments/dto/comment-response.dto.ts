@@ -15,7 +15,10 @@ export class CommentResponseDto {
   @ApiProperty({ description: 'Текст комментария', example: 'Отличная тема!' })
   content: string;
 
-  @ApiProperty({ description: 'Дата создания', example: '2026-04-10T12:00:00.000Z' })
+  @ApiProperty({
+    description: 'Дата создания',
+    example: '2026-04-10T12:00:00.000Z',
+  })
   createdAt: Date;
 
   @ApiPropertyOptional({ description: 'ID автора', example: 1 })

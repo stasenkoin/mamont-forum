@@ -7,7 +7,7 @@ export function setPaginationHeaders(
   limit: number,
   total: number,
 ) {
-  const totalPages = Math.ceil(total / limit);
+  const totalPages = Math.ceil(total / limit) || 1;
   const links: string[] = [];
 
   if (page > 1) {
