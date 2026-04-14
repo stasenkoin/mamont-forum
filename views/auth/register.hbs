@@ -1,17 +1,35 @@
+{{!--
+  Страница регистрации нового пользователя.
+  Содержит форму с полями "Никнейм", "Пароль" и необязательным "URL аватара",
+  блок для отображения ошибок и ссылку на страницу входа.
+  Отправка формы обрабатывается клиентским скриптом register.js.
+--}}
+
 <h1>Регистрация</h1>
+
+{{!-- Блок для отображения сообщений об ошибках регистрации; изначально скрыт --}}
 <div class="alert alert-error" id="error-msg" style="display:none"></div>
+
+{{!-- Форма регистрации нового аккаунта --}}
 <form class="form" id="register-form">
+  {{!-- Поле ввода никнейма (обязательное) --}}
   <label for="nickname">Никнейм</label>
   <input type="text" name="nickname" id="nickname" required>
 
+  {{!-- Поле ввода пароля (обязательное) --}}
   <label for="password">Пароль</label>
   <input type="password" name="password" id="password" required>
 
+  {{!-- Поле ввода URL аватара (необязательное) --}}
   <label for="avatarUrl">URL аватара (необязательно)</label>
   <input type="text" name="avatarUrl" id="avatarUrl" placeholder="https://...">
 
+  {{!-- Кнопка отправки формы регистрации --}}
   <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+
+  {{!-- Ссылка на страницу входа для уже зарегистрированных пользователей --}}
   <p>Уже есть аккаунт? <a href="/auth/login">Войти</a></p>
 </form>
 
+{{!-- Клиентский скрипт для обработки отправки формы регистрации через API --}}
 <script src="/js/register.js"></script>

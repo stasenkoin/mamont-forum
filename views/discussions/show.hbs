@@ -1,12 +1,24 @@
+{{!--
+  Страница отдельного обсуждения.
+  Отображает содержимое обсуждения и секцию комментариев с пагинацией.
+  Данные обсуждения и комментарии загружаются динамически через discussion.js.
+  Для авторизованных пользователей доступна форма добавления комментария;
+  для гостей отображается ссылка на страницу входа.
+--}}
+
+{{!-- Контейнер обсуждения с data-атрибутами для JS: ID обсуждения и ID текущего пользователя --}}
 <div id="discussion-container" data-discussion-id="{{discussionId}}" data-user-id="{{user.userId}}">
   <p class="empty">Загрузка...</p>
 </div>
 
+{{!-- Секция комментариев; изначально скрыта, показывается после загрузки данных --}}
 <section id="comments" style="display:none">
   <h2 id="comments-heading">Комментарии</h2>
 
+  {{!-- Контейнер для списка комментариев, заполняется динамически --}}
   <div id="comments-list"></div>
 
+  {{!-- Блок пагинации комментариев: кнопки навигации и информация о странице --}}
   <div class="pagination" id="comments-pagination">
     <button class="btn btn-sm" id="prev-page-btn">&larr; Назад</button>
     <span class="pagination-info" id="page-info"></span>
@@ -14,14 +26,17 @@
   </div>
 
   {{#if user}}
+    {{!-- Форма добавления нового комментария (доступна только авторизованным пользователям) --}}
     <form class="form" id="comment-form">
       <h3>Оставить комментарий</h3>
       <textarea name="content" id="comment-content" rows="4" required placeholder="Ваш комментарий..."></textarea>
       <button type="submit" class="btn btn-primary">Отправить</button>
     </form>
   {{else}}
+    {{!-- Сообщение для неавторизованных пользователей с предложением войти --}}
     <p><a href="/auth/login">Войдите</a>, чтобы оставить комментарий.</p>
   {{/if}}
 </section>
 
+{{!-- Клиентский скрипт для загрузки обсуждения, комментариев и обработки действий --}}
 <script src="/js/discussion.js"></script>

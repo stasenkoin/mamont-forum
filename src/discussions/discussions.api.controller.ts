@@ -40,6 +40,7 @@ export class DiscussionsApiController {
     description: 'Список обсуждений',
     type: [DiscussionResponseDto],
   })
+  @ApiResponse({ status: 400, description: 'Некорректные параметры пагинации' })
   async findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
@@ -60,6 +61,7 @@ export class DiscussionsApiController {
     description: 'Обсуждение найдено',
     type: DiscussionResponseDto,
   })
+  @ApiResponse({ status: 400, description: 'Некорректный ID' })
   @ApiResponse({ status: 404, description: 'Обсуждение не найдено' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     const discussion = await this.discussionsService.findOne(id, 1, 1000);
@@ -115,6 +117,7 @@ export class DiscussionsApiController {
     description: 'Обсуждение удалено',
     type: MessageResponseDto,
   })
+  @ApiResponse({ status: 400, description: 'Некорректный ID' })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @ApiResponse({ status: 403, description: 'Нет прав (не автор)' })
   @ApiResponse({ status: 404, description: 'Обсуждение не найдено' })

@@ -46,6 +46,7 @@ export class CommentsApiController {
     description: 'Список комментариев',
     type: [CommentResponseDto],
   })
+  @ApiResponse({ status: 400, description: 'Некорректные параметры пагинации' })
   @ApiResponse({ status: 404, description: 'Обсуждение не найдено' })
   async findAll(
     @Param('discussionId', ParseIntPipe) discussionId: number,

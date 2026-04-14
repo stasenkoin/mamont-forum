@@ -1,14 +1,32 @@
+{{!--
+  Страница редактирования существующего обсуждения.
+  Содержит форму с полями "Заголовок" и "Содержание",
+  которые заполняются текущими данными обсуждения через JS.
+  data-id передаёт идентификатор обсуждения в клиентский скрипт.
+  Обработка формы выполняется скриптом discussion-edit.js.
+--}}
+
 <h1>Редактирование обсуждения</h1>
+
+{{!-- Блок для отображения сообщений об ошибках; изначально скрыт --}}
 <div class="alert alert-error" id="error-msg" style="display:none"></div>
+
+{{!-- Форма редактирования обсуждения; data-id содержит ID обсуждения для запросов к API --}}
 <form class="form" id="edit-discussion-form" data-id="{{discussionId}}">
+  {{!-- Поле ввода заголовка обсуждения --}}
   <label for="title">Заголовок</label>
   <input type="text" name="title" id="title" required>
 
+  {{!-- Поле ввода содержания обсуждения --}}
   <label for="content">Содержание</label>
   <textarea name="content" id="content" rows="8" required></textarea>
 
+  {{!-- Кнопка сохранения изменений --}}
   <button type="submit" class="btn btn-primary">Сохранить</button>
+
+  {{!-- Кнопка отмены: возвращает на страницу просмотра обсуждения --}}
   <a href="/discussions/{{discussionId}}" class="btn btn-outline">Отмена</a>
 </form>
 
+{{!-- Клиентский скрипт для загрузки текущих данных обсуждения и отправки изменений через API --}}
 <script src="/js/discussion-edit.js"></script>

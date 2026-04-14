@@ -38,6 +38,7 @@ export class NotificationsApiController {
     description: 'Список уведомлений',
     type: [NotificationResponseDto],
   })
+  @ApiResponse({ status: 400, description: 'Некорректные параметры пагинации' })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   async findAll(
     @Req() req: Request,
@@ -65,6 +66,7 @@ export class NotificationsApiController {
     description: 'Уведомление прочитано',
     type: NotificationResponseDto,
   })
+  @ApiResponse({ status: 400, description: 'Некорректный ID' })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @ApiResponse({ status: 403, description: 'Нет прав (чужое уведомление)' })
   @ApiResponse({ status: 404, description: 'Уведомление не найдено' })
@@ -101,6 +103,7 @@ export class NotificationsApiController {
     description: 'Уведомление удалено',
     type: MessageResponseDto,
   })
+  @ApiResponse({ status: 400, description: 'Некорректный ID' })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @ApiResponse({ status: 403, description: 'Нет прав (чужое уведомление)' })
   @ApiResponse({ status: 404, description: 'Уведомление не найдено' })

@@ -1,13 +1,28 @@
+{{!--
+  Страница создания нового обсуждения.
+  Содержит форму с полями "Заголовок" и "Содержание",
+  а также блок для отображения ошибок валидации.
+  Отправка формы обрабатывается клиентским скриптом discussion-new.js.
+--}}
+
 <h1>Новое обсуждение</h1>
+
+{{!-- Блок для отображения сообщений об ошибках; изначально скрыт --}}
 <div class="alert alert-error" id="error-msg" style="display:none"></div>
+
+{{!-- Форма создания обсуждения --}}
 <form class="form" id="create-discussion-form">
+  {{!-- Поле ввода заголовка обсуждения --}}
   <label for="title">Заголовок</label>
   <input type="text" name="title" id="title" required>
 
+  {{!-- Поле ввода содержания (текста) обсуждения --}}
   <label for="content">Содержание</label>
   <textarea name="content" id="content" rows="8" required></textarea>
 
+  {{!-- Кнопка отправки формы --}}
   <button type="submit" class="btn btn-primary">Создать</button>
 </form>
 
+{{!-- Клиентский скрипт для обработки отправки формы через API --}}
 <script src="/js/discussion-new.js"></script>

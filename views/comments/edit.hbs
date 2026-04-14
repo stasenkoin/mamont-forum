@@ -1,11 +1,27 @@
+{{!--
+  Страница редактирования комментария.
+  Содержит форму с полем для текста комментария.
+  data-discussion-id и data-comment-id передают идентификаторы
+  обсуждения и комментария в клиентский скрипт comment-edit.js.
+--}}
+
 <h1>Редактирование комментария</h1>
+
+{{!-- Блок для отображения сообщений об ошибках; изначально скрыт --}}
 <div class="alert alert-error" id="error-msg" style="display:none"></div>
+
+{{!-- Форма редактирования комментария; data-атрибуты содержат ID обсуждения и комментария --}}
 <form class="form" id="edit-comment-form" data-discussion-id="{{discussionId}}" data-comment-id="{{commentId}}">
+  {{!-- Поле ввода текста комментария --}}
   <label for="content">Комментарий</label>
   <textarea name="content" id="content" rows="6" required></textarea>
 
+  {{!-- Кнопка сохранения изменений --}}
   <button type="submit" class="btn btn-primary">Сохранить</button>
+
+  {{!-- Кнопка отмены: возвращает на страницу просмотра обсуждения --}}
   <a href="/discussions/{{discussionId}}" class="btn btn-outline">Отмена</a>
 </form>
 
+{{!-- Клиентский скрипт для загрузки текущего текста комментария и отправки изменений через API --}}
 <script src="/js/comment-edit.js"></script>

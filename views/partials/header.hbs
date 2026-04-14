@@ -1,28 +1,54 @@
+{{!--
+  Частичный шаблон шапки сайта (header).
+  Содержит логотип форума, навигационные ссылки на основные разделы
+  (Обсуждения, Пользователи, Правила), а также блок пользователя:
+  для авторизованных — колокольчик уведомлений, аватар, никнейм,
+  кнопки настроек и выхода; для гостей — кнопки входа и регистрации.
+--}}
 <header class="header">
   <div class="header-inner">
+    {{!-- Логотип форума со ссылкой на главную страницу обсуждений --}}
     <a href="/discussions" class="logo">&#128024; Mamont Forum</a>
+
+    {{!-- Основные навигационные ссылки на разделы форума --}}
     <nav class="header-links">
       <a href="/discussions">Обсуждения</a>
       <a href="/users">Пользователи</a>
       <a href="/rules">Правила</a>
     </nav>
+
+    {{!-- Правая часть шапки: зависит от статуса авторизации пользователя --}}
     <nav class="header-nav">
       {{#if user}}
+        {{!-- Блок для авторизованного пользователя --}}
+
+        {{!-- Кнопка-колокольчик уведомлений со счётчиком непрочитанных --}}
         <div class="notification-wrapper">
           <a href="/notifications" class="btn btn-sm" id="notification-btn">
             &#128276; <span id="notification-count"></span>
           </a>
         </div>
+
+        {{!-- Информация о пользователе: аватар (если задан) и никнейм --}}
         <span class="user-info">
           {{#if user.avatarUrl}}
             <img src="{{user.avatarUrl}}" alt="avatar" class="avatar-sm">
           {{/if}}
           {{user.nickname}}
         </span>
+
+        {{!-- Ссылка на страницу настроек аккаунта --}}
         <a href="/account" class="btn btn-sm">Настройки</a>
+
+        {{!-- Кнопка выхода из аккаунта: отправляет POST-запрос на API и перенаправляет на главную --}}
         <button class="btn btn-sm btn-outline" onclick="fetch('/api/auth/logout',{method:'POST'}).then(function(){window.location.href='/'})">Выйти</button>
       {{else}}
+        {{!-- Блок для неавторизованного пользователя (гостя) --}}
+
+        {{!-- Кнопка входа в аккаунт --}}
         <a href="/auth/login" class="btn btn-sm">Войти</a>
+
+        {{!-- Кнопка регистрации нового аккаунта --}}
         <a href="/auth/register" class="btn btn-sm btn-primary">Регистрация</a>
       {{/if}}
     </nav>

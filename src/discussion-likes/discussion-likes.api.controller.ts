@@ -34,6 +34,7 @@ export class DiscussionLikesApiController {
     description: 'Лайк поставлен',
     type: LikeResponseDto,
   })
+  @ApiResponse({ status: 400, description: 'Некорректный ID обсуждения' })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @ApiResponse({ status: 404, description: 'Обсуждение не найдено' })
   @ApiResponse({ status: 409, description: 'Лайк уже поставлен' })
@@ -69,6 +70,7 @@ export class DiscussionLikesApiController {
     description: 'Лайк убран',
     type: MessageResponseDto,
   })
+  @ApiResponse({ status: 400, description: 'Некорректный ID обсуждения' })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @ApiResponse({ status: 404, description: 'Обсуждение или лайк не найдены' })
   async unlike(

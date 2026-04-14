@@ -27,6 +27,7 @@ export class UsersApiController {
     description: 'Список пользователей',
     type: [UserListResponseDto],
   })
+  @ApiResponse({ status: 400, description: 'Некорректные параметры пагинации' })
   async findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
