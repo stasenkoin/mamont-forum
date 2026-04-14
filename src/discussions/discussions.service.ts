@@ -34,6 +34,16 @@ export class DiscussionsService {
     return { items, total, page, limit };
   }
 
+  async findById(id: number) {
+    return this.prisma.discussion.findUnique({
+      where: { id },
+      include: {
+        author: true,
+        _count: { select: { comments: true, likes: true } },
+      },
+    });
+  }
+
   async findOne(id: number, commentsPage = 1, commentsLimit = 5) {
     const skip = (commentsPage - 1) * commentsLimit;
     return this.prisma.discussion.findUnique({

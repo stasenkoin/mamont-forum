@@ -1,0 +1,365 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""Результат успешной авторизации"""
+type AuthPayloadType {
+  """URL аватара пользователя"""
+  avatarUrl: String
+
+  """ID пользователя"""
+  id: Int!
+
+  """Никнейм пользователя"""
+  nickname: String!
+}
+
+"""Страница списка комментариев"""
+type CommentPageType {
+  """Элементы текущей страницы"""
+  items: [CommentType!]!
+
+  """Размер страницы"""
+  limit: Int!
+
+  """Текущая страница"""
+  page: Int!
+
+  """Общее количество элементов"""
+  total: Int!
+
+  """Общее количество страниц"""
+  totalPages: Int!
+}
+
+"""Комментарий в обсуждении"""
+type CommentType {
+  """Автор комментария"""
+  author: UserType
+
+  """ID автора комментария"""
+  authorId: Int
+
+  """Текст комментария"""
+  content: String!
+
+  """Дата и время создания комментария"""
+  createdAt: DateTime!
+
+  """ID обсуждения"""
+  discussionId: Int!
+
+  """ID комментария"""
+  id: Int!
+}
+
+"""Данные для создания комментария"""
+input CreateCommentInput {
+  """Текст комментария"""
+  content: String!
+}
+
+"""Данные для создания обсуждения"""
+input CreateDiscussionInput {
+  """Текст обсуждения"""
+  content: String!
+
+  """Заголовок обсуждения"""
+  title: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""Лайк обсуждения"""
+type DiscussionLikeType {
+  """Дата и время постановки лайка"""
+  createdAt: DateTime!
+
+  """ID обсуждения"""
+  discussionId: Int!
+
+  """ID лайка"""
+  id: Int!
+
+  """ID пользователя, поставившего лайк"""
+  userId: Int!
+}
+
+"""Страница списка обсуждений"""
+type DiscussionPageType {
+  """Элементы текущей страницы"""
+  items: [DiscussionType!]!
+
+  """Размер страницы"""
+  limit: Int!
+
+  """Текущая страница"""
+  page: Int!
+
+  """Общее количество элементов"""
+  total: Int!
+
+  """Общее количество страниц"""
+  totalPages: Int!
+}
+
+"""Обсуждение форума"""
+type DiscussionType {
+  """Автор обсуждения"""
+  author: UserType
+
+  """ID автора обсуждения"""
+  authorId: Int
+
+  """Комментарии к обсуждению"""
+  comments(
+    """Количество элементов на странице"""
+    limit: Int! = 10
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): [CommentType!]!
+
+  """Количество комментариев к обсуждению"""
+  commentsCount: Int!
+
+  """Текст обсуждения"""
+  content: String!
+
+  """Дата и время создания обсуждения"""
+  createdAt: DateTime!
+
+  """ID обсуждения"""
+  id: Int!
+
+  """Количество лайков обсуждения"""
+  likesCount: Int!
+
+  """Заголовок обсуждения"""
+  title: String!
+}
+
+"""Данные для входа в аккаунт"""
+input LoginInput {
+  """Никнейм пользователя"""
+  nickname: String!
+
+  """Пароль пользователя"""
+  password: String!
+}
+
+"""Результат операции с текстовым сообщением"""
+type MessageType {
+  """Сообщение о результате операции"""
+  message: String!
+}
+
+type Mutation {
+  """Создать комментарий в обсуждении"""
+  createComment(discussionId: Int!, input: CreateCommentInput!): CommentType!
+
+  """Создать новое обсуждение"""
+  createDiscussion(input: CreateDiscussionInput!): DiscussionType!
+
+  """Удалить собственный комментарий"""
+  deleteComment(id: Int!): MessageType!
+
+  """Удалить собственное обсуждение"""
+  deleteDiscussion(id: Int!): MessageType!
+
+  """Удалить текущий аккаунт и закрыть сессию"""
+  deleteMyAccount: MessageType!
+
+  """Удалить уведомление текущего пользователя"""
+  deleteNotification(id: Int!): MessageType!
+
+  """Поставить лайк обсуждению"""
+  likeDiscussion(discussionId: Int!): DiscussionLikeType!
+
+  """Войти в существующий аккаунт"""
+  login(input: LoginInput!): AuthPayloadType!
+
+  """Завершить текущую пользовательскую сессию"""
+  logout: MessageType!
+
+  """Отметить все уведомления текущего пользователя как прочитанные"""
+  markAllNotificationsAsRead: MessageType!
+
+  """Отметить уведомление как прочитанное"""
+  markNotificationAsRead(id: Int!): NotificationType!
+
+  """Зарегистрировать нового пользователя и открыть сессию"""
+  register(input: RegisterInput!): AuthPayloadType!
+
+  """Убрать лайк со своего обсуждения"""
+  unlikeDiscussion(discussionId: Int!): MessageType!
+
+  """Обновить текст собственного комментария"""
+  updateComment(id: Int!, input: UpdateCommentInput!): CommentType!
+
+  """Обновить собственное обсуждение"""
+  updateDiscussion(id: Int!, input: UpdateDiscussionInput!): DiscussionType!
+}
+
+"""Страница списка уведомлений"""
+type NotificationPageType {
+  """Элементы текущей страницы"""
+  items: [NotificationType!]!
+
+  """Размер страницы"""
+  limit: Int!
+
+  """Текущая страница"""
+  page: Int!
+
+  """Общее количество элементов"""
+  total: Int!
+
+  """Общее количество страниц"""
+  totalPages: Int!
+}
+
+"""Уведомление пользователя"""
+type NotificationType {
+  """Дата и время создания уведомления"""
+  createdAt: DateTime!
+
+  """Связанное обсуждение"""
+  discussion: DiscussionType
+
+  """ID связанного обсуждения"""
+  discussionId: Int
+
+  """ID уведомления"""
+  id: Int!
+
+  """Прочитано ли уведомление"""
+  isRead: Boolean!
+
+  """Текст уведомления"""
+  message: String!
+
+  """Тип уведомления"""
+  type: String!
+
+  """ID пользователя, получателя уведомления"""
+  userId: Int!
+}
+
+type Query {
+  """Получить комментарий по его идентификатору"""
+  comment(id: Int!): CommentType
+
+  """Получить страницу комментариев для выбранного обсуждения"""
+  commentsByDiscussion(
+    discussionId: Int!
+
+    """Количество элементов на странице"""
+    limit: Int! = 10
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): CommentPageType!
+
+  """Получить обсуждение по идентификатору"""
+  discussion(id: Int!): DiscussionType
+
+  """Получить страницу списка обсуждений"""
+  discussions(
+    """Количество элементов на странице"""
+    limit: Int! = 10
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): DiscussionPageType!
+
+  """Получить данные текущего авторизованного пользователя"""
+  me: UserType!
+
+  """Получить страницу уведомлений текущего пользователя"""
+  myNotifications(
+    """Количество элементов на странице"""
+    limit: Int! = 10
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): NotificationPageType!
+
+  """Получить страницу списка пользователей"""
+  users(
+    """Количество элементов на странице"""
+    limit: Int! = 10
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): UserPageType!
+}
+
+"""Данные для регистрации пользователя"""
+input RegisterInput {
+  """URL аватара пользователя"""
+  avatarUrl: String
+
+  """Никнейм пользователя"""
+  nickname: String!
+
+  """Пароль пользователя"""
+  password: String!
+}
+
+"""Данные для обновления комментария"""
+input UpdateCommentInput {
+  """Новый текст комментария"""
+  content: String!
+}
+
+"""Данные для обновления обсуждения"""
+input UpdateDiscussionInput {
+  """Новый текст обсуждения"""
+  content: String!
+
+  """Новый заголовок обсуждения"""
+  title: String!
+}
+
+"""Страница списка пользователей"""
+type UserPageType {
+  """Элементы текущей страницы"""
+  items: [UserType!]!
+
+  """Размер страницы"""
+  limit: Int!
+
+  """Текущая страница"""
+  page: Int!
+
+  """Общее количество элементов"""
+  total: Int!
+
+  """Общее количество страниц"""
+  totalPages: Int!
+}
+
+"""Пользователь форума"""
+type UserType {
+  """URL аватара пользователя"""
+  avatarUrl: String
+
+  """Количество оставленных комментариев"""
+  commentsCount: Int!
+
+  """Дата и время регистрации пользователя"""
+  createdAt: DateTime!
+
+  """Количество созданных обсуждений"""
+  discussionsCount: Int!
+
+  """ID пользователя"""
+  id: Int!
+
+  """Никнейм пользователя"""
+  nickname: String!
+}

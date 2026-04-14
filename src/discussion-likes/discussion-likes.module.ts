@@ -8,5 +8,6 @@ import { NotificationsModule } from '../notifications/notifications.module';
   imports: [NotificationsModule],
   controllers: [DiscussionLikesController, DiscussionLikesApiController],
   providers: [DiscussionLikesService],
+  exports: [DiscussionLikesService],
 })
 export class DiscussionLikesModule {}
