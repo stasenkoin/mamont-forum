@@ -5,7 +5,7 @@ import {
   BaseContext,
   GraphQLRequestListener,
 } from '@apollo/server';
-import { GraphQLError } from 'graphql';
+import { GraphQLError, Kind } from 'graphql';
 import {
   fieldExtensionsEstimator,
   getComplexity,
@@ -16,12 +16,25 @@ import {
 export class ComplexityPlugin implements ApolloServerPlugin {
   constructor(private gqlSchemaHost: GraphQLSchemaHost) {}
 
-  async requestDidStart(): Promise<GraphQLRequestListener<BaseContext>> {
+  requestDidStart(): Promise<GraphQLRequestListener<BaseContext>> {
     const maxComplexity = 120;
     const { schema } = this.gqlSchemaHost;
 
-    return {
-      async didResolveOperation({ request, document }) {
+    return Promise.resolve({
+      didResolveOperation({ request, document }) {
+        const isIntrospectionQuery = document.definitions.some((def) => {
+          if (def.kind !== Kind.OPERATION_DEFINITION) return false;
+          return def.selectionSet.selections.every(
+            (sel) =>
+              sel.kind === Kind.FIELD &&
+              (sel.name.value === '__schema' || sel.name.value === '__type'),
+          );
+        });
+
+        if (isIntrospectionQuery) {
+          return;
+        }
+
         const complexity = getComplexity({
           schema,
           operationName: request.operationName,
@@ -38,7 +51,9 @@ export class ComplexityPlugin implements ApolloServerPlugin {
             `Query is too complex: ${complexity}. Maximum allowed complexity: ${maxComplexity}.`,
           );
         }
+
+        return Promise.resolve();
       },
-    };
+    });
   }
 }

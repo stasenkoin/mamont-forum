@@ -117,7 +117,8 @@ export class NotificationsResolver {
     description: 'Связанное с уведомлением обсуждение',
   })
   async discussion(
-    @Parent() notification: NotificationType & {
+    @Parent()
+    notification: NotificationType & {
       discussion?: DiscussionType | null;
     },
   ) {
