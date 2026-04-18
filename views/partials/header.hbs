@@ -1,11 +1,23 @@
 <header class="header">
   <div class="header-inner">
     <a href="/discussions" class="logo">&#128024; Mamont Forum</a>
-    <nav class="header-links">
-      <a href="/discussions">Обсуждения</a>
-      <a href="/users">Пользователи</a>
-      <a href="/rules">Правила</a>
+    <nav class="header-links" id="header-links">
+      <a href="/discussions" data-match="/discussions">Обсуждения</a>
+      <a href="/users" data-match="/users">Пользователи</a>
+      <a href="/rules" data-match="/rules">Правила</a>
     </nav>
+    <script>
+      (function () {
+        var path = window.location.pathname;
+        var links = document.querySelectorAll('#header-links a');
+        links.forEach(function (link) {
+          var match = link.getAttribute('data-match');
+          if (path === match || path.indexOf(match + '/') === 0) {
+            link.classList.add('active');
+          }
+        });
+      })();
+    </script>
     <nav class="header-nav">
       {{#if user}}
         <div class="notification-wrapper">
