@@ -1,4 +1,9 @@
-export function buildPage<T>(items: T[], total: number, page: number, limit: number) {
+export function buildPage<T>(
+  items: T[],
+  total: number,
+  page: number,
+  limit: number,
+) {
   return {
     items,
     total,
