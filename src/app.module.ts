@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
 import { AppController } from './app.controller';
+import { ElapsedTimeInterceptor } from './common/elapsed-time.interceptor';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { DiscussionsModule } from './discussions/discussions.module';
@@ -44,6 +46,7 @@ import { UsersResolver } from './graphql/resolvers/users.resolver';
   ],
   controllers: [AppController],
   providers: [
+    { provide: APP_INTERCEPTOR, useClass: ElapsedTimeInterceptor },
     ComplexityPlugin,
     AuthResolver,
     DiscussionsResolver,

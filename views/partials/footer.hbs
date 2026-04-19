@@ -1,5 +1,22 @@
 <footer class="footer">
   <div class="container">
     <p>&copy; 2026 Mamont Forum. Все права защищены.</p>
+    {{#if elapsedTime}}
+      <p class="elapsed-time">
+        Сервер: <span>{{elapsedTime}} мс</span>
+        · Клиент: <span id="client-elapsed">—</span>
+      </p>
+    {{/if}}
   </div>
 </footer>
+<script>
+  // Замер клиентского времени: сколько прошло от начала запроса
+  // до полной загрузки страницы (performance.getEntriesByType)
+  window.addEventListener('load', function () {
+    var nav = performance.getEntriesByType('navigation')[0];
+    var el = document.getElementById('client-elapsed');
+    if (nav && el) {
+      el.textContent = Math.round(nav.responseEnd - nav.requestStart) + ' мс';
+    }
+  });
+</script>
