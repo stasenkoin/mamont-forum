@@ -45,7 +45,7 @@ export class NotificationsResolver {
     @Context() context: GraphqlContext,
   ) {
     const result = await this.notificationsService.findForUserPaginated(
-      context.req.session.userId!,
+      context.req.session.userId,
       pagination.page,
       pagination.limit,
     );
@@ -80,11 +80,12 @@ export class NotificationsResolver {
   }
 
   @Mutation(() => MessageType, {
-    description: 'Отметить все уведомления текущего пользователя как прочитанные',
+    description:
+      'Отметить все уведомления текущего пользователя как прочитанные',
   })
   @UseGuards(AuthGuardApi)
   async markAllNotificationsAsRead(@Context() context: GraphqlContext) {
-    await this.notificationsService.markAllAsRead(context.req.session.userId!);
+    await this.notificationsService.markAllAsRead(context.req.session.userId);
 
     return { message: 'Все уведомления прочитаны' };
   }

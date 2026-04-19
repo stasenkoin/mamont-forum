@@ -89,7 +89,7 @@ export class AuthResolver {
   })
   @UseGuards(AuthGuardApi)
   async me(@Context() context: GraphqlContext) {
-    const user = await this.authService.findById(context.req.session.userId!);
+    const user = await this.authService.findById(context.req.session.userId);
 
     if (!user) {
       throw new UnauthorizedException('Пользователь не найден');
@@ -103,7 +103,7 @@ export class AuthResolver {
   })
   @UseGuards(AuthGuardApi)
   async deleteMyAccount(@Context() context: GraphqlContext) {
-    await this.authService.deleteAccount(context.req.session.userId!);
+    await this.authService.deleteAccount(context.req.session.userId);
 
     await new Promise<void>((resolve) => {
       context.req.session.destroy(() => resolve());

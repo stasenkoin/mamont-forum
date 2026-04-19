@@ -106,7 +106,7 @@ export class CommentsResolver {
     const comment = await this.commentsService.create(
       discussionId,
       input.content,
-      context.req.session.userId!,
+      context.req.session.userId,
     );
 
     if (
