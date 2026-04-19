@@ -84,7 +84,7 @@ export class DiscussionsResolver {
     @Args('input') input: CreateDiscussionInput,
     @Context() context: GraphqlContext,
   ) {
-    return this.discussionsService.create(input, context.req.session.userId!);
+    return this.discussionsService.create(input, context.req.session.userId);
   }
 
   @Mutation(() => DiscussionType, {

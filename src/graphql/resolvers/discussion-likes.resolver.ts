@@ -39,7 +39,7 @@ export class DiscussionLikesResolver {
     }
 
     const like = await this.likesService.like(
-      context.req.session.userId!,
+      context.req.session.userId,
       discussionId,
     );
 
@@ -75,7 +75,7 @@ export class DiscussionLikesResolver {
       throw new NotFoundException('Обсуждение не найдено');
     }
 
-    await this.likesService.unlike(context.req.session.userId!, discussionId);
+    await this.likesService.unlike(context.req.session.userId, discussionId);
 
     return { message: 'Лайк убран' };
   }
