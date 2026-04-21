@@ -16,6 +16,7 @@ import {
   ForbiddenException,
   BadRequestException,
   DefaultValuePipe,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
@@ -25,6 +26,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CommentResponseDto } from './dto/comment-response.dto';
 import { MessageResponseDto } from '../auth/dto/user-response.dto';
 import { NotificationsService } from '../notifications/notifications.service';
+import { AuthService } from '../auth/auth.service';
 import { AuthGuardApi } from '../common/auth-api.guard';
 import { setPaginationHeaders } from '../common/pagination';
 import { PrismaService } from '../prisma/prisma.service';
@@ -35,6 +37,7 @@ export class CommentsApiController {
   constructor(
     private commentsService: CommentsService,
     private notificationsService: NotificationsService,
+    private authService: AuthService,
     private prisma: PrismaService,
   ) {}
 
@@ -122,6 +125,12 @@ export class CommentsApiController {
     @Body() dto: CreateCommentDto,
     @Req() req: Request,
   ) {
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const discussion = await this.prisma.discussion.findUnique({
       where: { id: discussionId },
       select: { id: true, authorId: true },
@@ -132,13 +141,13 @@ export class CommentsApiController {
     const comment = await this.commentsService.create(
       discussionId,
       dto.content,
-      req.session.userId,
+      user.id,
     );
 
-    if (discussion.authorId && discussion.authorId !== req.session.userId) {
+    if (discussion.authorId && discussion.authorId !== user.id) {
       await this.notificationsService.create({
         type: 'discussion_commented',
-        message: `${req.session.nickname} оставил комментарий в вашем обсуждении`,
+        message: `${user.nickname} оставил комментарий в вашем обсуждении`,
         userId: discussion.authorId,
         discussionId,
       });
@@ -169,6 +178,12 @@ export class CommentsApiController {
     @Body() dto: UpdateCommentDto,
     @Req() req: Request,
   ) {
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const comment = await this.commentsService.findOne(commentId);
     if (!comment) {
       throw new NotFoundException('Комментарий не найден');
@@ -176,7 +191,7 @@ export class CommentsApiController {
     if (comment.discussionId !== discussionId) {
       throw new BadRequestException('Комментарий не принадлежит обсуждению');
     }
-    if (comment.authorId !== req.session.userId) {
+    if (comment.authorId !== user.id) {
       throw new ForbiddenException('Нет прав (не автор)');
     }
     return this.commentsService.update(commentId, dto.content);
@@ -202,6 +217,12 @@ export class CommentsApiController {
     @Param('commentId', ParseIntPipe) commentId: number,
     @Req() req: Request,
   ) {
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const comment = await this.commentsService.findOne(commentId);
     if (!comment) {
       throw new NotFoundException('Комментарий не найден');
@@ -209,7 +230,7 @@ export class CommentsApiController {
     if (comment.discussionId !== discussionId) {
       throw new BadRequestException('Комментарий не принадлежит обсуждению');
     }
-    if (comment.authorId !== req.session.userId) {
+    if (comment.authorId !== user.id) {
       throw new ForbiddenException('Нет прав (не автор)');
     }
     await this.commentsService.delete(commentId);

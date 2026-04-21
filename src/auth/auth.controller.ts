@@ -13,12 +13,12 @@ export class AuthController {
   @Get('register')
   @Render('auth/register')
   registerForm(@Req() req: Request) {
-    return { user: req.session.userId ? req.session : null };
+    return { user: null };
   }
 
   @Get('login')
   @Render('auth/login')
   loginForm(@Req() req: Request) {
-    return { user: req.session.userId ? req.session : null };
+    return { user: null };
   }
 }

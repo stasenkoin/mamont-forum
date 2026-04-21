@@ -6,7 +6,8 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { join } from 'path';
 import { readFileSync, readdirSync } from 'fs';
 import hbs from 'hbs';
-import session from 'express-session';
+import supertokens from 'supertokens-node';
+import { middleware } from 'supertokens-node/framework/express';
 import { AppModule } from './app.module';
 import { PrismaExceptionFilter } from './common/prisma-exception.filter';
 
@@ -15,19 +16,16 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
+      process.env.APP_URL ?? 'http://localhost:3456',
       'https://sandbox.embed.apollographql.com',
       'https://explorer.embed.apollographql.com',
     ],
+    allowedHeaders: ['Content-Type', ...supertokens.getAllCORSHeaders()],
     credentials: true,
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'apollo-require-preflight',
-      'x-apollo-operation-name',
-    ],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   });
+
+  app.use(middleware());
 
   app.useStaticAssets(join(process.cwd(), 'public'));
   app.setBaseViewsDir(join(process.cwd(), 'views'));
@@ -43,11 +41,9 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Mamont Forum API')
-    .setDescription(
-      'REST API форума Mamont. Для авторизации: вызовите POST /api/auth/login, cookie установится автоматически.',
-    )
+    .setDescription('REST API форума Mamont.')
     .setVersion('1.0')
-    .addCookieAuth('connect.sid')
+    .addCookieAuth('sAccessToken')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document, {
@@ -75,17 +71,6 @@ async function bootstrap() {
       minute: '2-digit',
     });
   });
-
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET || 'mamont-forum-secret',
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        maxAge: 24 * 60 * 60 * 1000,
-      },
-    }),
-  );
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

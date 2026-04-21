@@ -2,18 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-"""Результат успешной авторизации"""
-type AuthPayloadType {
-  """URL аватара пользователя"""
-  avatarUrl: String
-
-  """ID пользователя"""
-  id: Int!
-
-  """Никнейм пользователя"""
-  nickname: String!
-}
-
 """Страница списка комментариев"""
 type CommentPageType {
   """Элементы текущей страницы"""
@@ -142,15 +130,6 @@ type DiscussionType {
   title: String!
 }
 
-"""Данные для входа в аккаунт"""
-input LoginInput {
-  """Никнейм пользователя"""
-  nickname: String!
-
-  """Пароль пользователя"""
-  password: String!
-}
-
 """Результат операции с текстовым сообщением"""
 type MessageType {
   """Сообщение о результате операции"""
@@ -170,29 +149,17 @@ type Mutation {
   """Удалить собственное обсуждение"""
   deleteDiscussion(id: Int!): MessageType!
 
-  """Удалить текущий аккаунт и закрыть сессию"""
-  deleteMyAccount: MessageType!
-
   """Удалить уведомление текущего пользователя"""
   deleteNotification(id: Int!): MessageType!
 
   """Поставить лайк обсуждению"""
   likeDiscussion(discussionId: Int!): DiscussionLikeType!
 
-  """Войти в существующий аккаунт"""
-  login(input: LoginInput!): AuthPayloadType!
-
-  """Завершить текущую пользовательскую сессию"""
-  logout: MessageType!
-
   """Отметить все уведомления текущего пользователя как прочитанные"""
   markAllNotificationsAsRead: MessageType!
 
   """Отметить уведомление как прочитанное"""
   markNotificationAsRead(id: Int!): NotificationType!
-
-  """Зарегистрировать нового пользователя и открыть сессию"""
-  register(input: RegisterInput!): AuthPayloadType!
 
   """Убрать лайк со своего обсуждения"""
   unlikeDiscussion(discussionId: Int!): MessageType!
@@ -296,18 +263,6 @@ type Query {
     """Номер страницы, начиная с 1"""
     page: Int! = 1
   ): UserPageType!
-}
-
-"""Данные для регистрации пользователя"""
-input RegisterInput {
-  """URL аватара пользователя"""
-  avatarUrl: String
-
-  """Никнейм пользователя"""
-  nickname: String!
-
-  """Пароль пользователя"""
-  password: String!
 }
 
 """Данные для обновления комментария"""

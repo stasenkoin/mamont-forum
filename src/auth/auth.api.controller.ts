@@ -10,9 +10,8 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
-  ConflictException,
   UnauthorizedException,
-  HttpCode,
+  ConflictException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -30,15 +29,14 @@ import {
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { S3Service } from '../s3/s3.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
 import {
-  AuthResponseDto,
   UserResponseDto,
   MessageResponseDto,
   AvatarResponseDto,
 } from './dto/user-response.dto';
 import { AuthGuardApi } from '../common/auth-api.guard';
+import { AuthGuard } from '../common/auth.guard';
+import { Public } from '../common/public.decorator';
 
 @ApiTags('Авторизация')
 @Controller('api/auth')
@@ -48,66 +46,23 @@ export class AuthApiController {
     private s3Service: S3Service,
   ) {}
 
-  @Post('register')
-  @ApiOperation({ summary: 'Регистрация нового пользователя' })
-  @ApiResponse({
-    status: 201,
-    description: 'Пользователь создан',
-    type: AuthResponseDto,
+  @Post('profile')
+  @ApiOperation({
+    summary: 'Создать профиль после регистрации через SuperTokens',
   })
-  @ApiResponse({ status: 400, description: 'Некорректные данные' })
+  @ApiResponse({ status: 201, description: 'Профиль создан' })
   @ApiResponse({ status: 409, description: 'Никнейм уже занят' })
-  async register(@Body() dto: RegisterDto, @Req() req: Request) {
-    if (await this.authService.nicknameExists(dto.nickname)) {
+  async createProfile(
+    @Body() body: { supertokensId: string; nickname: string },
+  ) {
+    if (!body.supertokensId || !body.nickname) {
+      throw new UnauthorizedException('Некорректные данные');
+    }
+    if (await this.authService.nicknameExists(body.nickname)) {
       throw new ConflictException('Этот никнейм уже занят');
     }
-    const user = await this.authService.register(dto);
-    req.session.userId = user.id;
-    req.session.nickname = user.nickname;
-    req.session.avatarUrl = user.avatarUrl;
+    const user = await this.authService.createProfile(body.supertokensId, body.nickname);
     return { id: user.id, nickname: user.nickname };
-  }
-
-  @Post('login')
-  @HttpCode(200)
-  @ApiOperation({ summary: 'Вход в аккаунт' })
-  @ApiResponse({
-    status: 200,
-    description: 'Успешный вход',
-    type: AuthResponseDto,
-  })
-  @ApiResponse({ status: 400, description: 'Некорректные данные' })
-  @ApiResponse({ status: 401, description: 'Неверный никнейм или пароль' })
-  async login(@Body() dto: LoginDto, @Req() req: Request) {
-    const user = await this.authService.validateUser(
-      dto.nickname,
-      dto.password,
-    );
-    if (!user) {
-      throw new UnauthorizedException('Неверный никнейм или пароль');
-    }
-    req.session.userId = user.id;
-    req.session.nickname = user.nickname;
-    req.session.avatarUrl = user.avatarUrl;
-    return { id: user.id, nickname: user.nickname };
-  }
-
-  @Post('logout')
-  @HttpCode(200)
-  @ApiOperation({ summary: 'Выход из аккаунта' })
-  @ApiResponse({
-    status: 200,
-    description: 'Выход выполнен',
-    type: MessageResponseDto,
-  })
-  @ApiResponse({ status: 401, description: 'Не авторизован' })
-  @UseGuards(AuthGuardApi)
-  logout(@Req() req: Request) {
-    return new Promise<{ message: string }>((resolve) => {
-      req.session.destroy(() => {
-        resolve({ message: 'Выход выполнен' });
-      });
-    });
   }
 
   @Get('me')
@@ -119,9 +74,10 @@ export class AuthApiController {
     type: UserResponseDto,
   })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
-  @UseGuards(AuthGuardApi)
+  @UseGuards(AuthGuard)
   async me(@Req() req: Request) {
-    const user = await this.authService.findById(req.session.userId);
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
     if (!user) {
       throw new UnauthorizedException('Пользователь не найден');
     }
@@ -169,8 +125,14 @@ export class AuthApiController {
     file: Express.Multer.File,
     @Req() req: Request,
   ) {
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const ext = file.mimetype.split('/')[1];
-    const key = `avatars/${req.session.userId}-${Date.now()}.${ext}`;
+    const key = `avatars/${user.id}-${Date.now()}.${ext}`;
 
     const avatarUrl = await this.s3Service.upload(
       key,
@@ -178,8 +140,7 @@ export class AuthApiController {
       file.mimetype,
     );
 
-    await this.authService.updateAvatar(req.session.userId, avatarUrl);
-    req.session.avatarUrl = avatarUrl;
+    await this.authService.updateAvatar(user.id, avatarUrl);
 
     return { avatarUrl };
   }
@@ -194,12 +155,13 @@ export class AuthApiController {
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @UseGuards(AuthGuardApi)
   async deleteAccount(@Req() req: Request) {
-    const userId = req.session.userId;
-    await this.authService.deleteAccount(userId);
-    return new Promise<{ message: string }>((resolve) => {
-      req.session.destroy(() => {
-        resolve({ message: 'Аккаунт удалён' });
-      });
-    });
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+    await this.authService.deleteAccount(user.id);
+    await req.session.revokeSession();
+    return { message: 'Аккаунт удалён' };
   }
 }

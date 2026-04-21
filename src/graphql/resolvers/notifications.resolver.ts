@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   NotFoundException,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -14,6 +15,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { Request, Response } from 'express';
+import { AuthService } from '../../auth/auth.service';
 import { AuthGuardApi } from '../../common/auth-api.guard';
 import { NotificationsService } from '../../notifications/notifications.service';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -33,6 +35,7 @@ type GraphqlContext = {
 export class NotificationsResolver {
   constructor(
     private notificationsService: NotificationsService,
+    private authService: AuthService,
     private prisma: PrismaService,
   ) {}
 
@@ -44,8 +47,14 @@ export class NotificationsResolver {
     @Args() pagination: PaginationArgs,
     @Context() context: GraphqlContext,
   ) {
+    const stId = context.req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const result = await this.notificationsService.findForUserPaginated(
-      context.req.session.userId,
+      user.id,
       pagination.page,
       pagination.limit,
     );
@@ -66,13 +75,19 @@ export class NotificationsResolver {
     @Args('id', { type: () => Int }) id: number,
     @Context() context: GraphqlContext,
   ) {
+    const stId = context.req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const notification = await this.notificationsService.findOne(id);
 
     if (!notification) {
       throw new NotFoundException('Уведомление не найдено');
     }
 
-    if (notification.userId !== context.req.session.userId) {
+    if (notification.userId !== user.id) {
       throw new ForbiddenException('Нет прав (чужое уведомление)');
     }
 
@@ -85,7 +100,13 @@ export class NotificationsResolver {
   })
   @UseGuards(AuthGuardApi)
   async markAllNotificationsAsRead(@Context() context: GraphqlContext) {
-    await this.notificationsService.markAllAsRead(context.req.session.userId);
+    const stId = context.req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
+    await this.notificationsService.markAllAsRead(user.id);
 
     return { message: 'Все уведомления прочитаны' };
   }
@@ -98,13 +119,19 @@ export class NotificationsResolver {
     @Args('id', { type: () => Int }) id: number,
     @Context() context: GraphqlContext,
   ) {
+    const stId = context.req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const notification = await this.notificationsService.findOne(id);
 
     if (!notification) {
       throw new NotFoundException('Уведомление не найдено');
     }
 
-    if (notification.userId !== context.req.session.userId) {
+    if (notification.userId !== user.id) {
       throw new ForbiddenException('Нет прав (чужое уведомление)');
     }
 

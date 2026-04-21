@@ -2,8 +2,10 @@ import { Module } from '@nestjs/common';
 import { DiscussionsController } from './discussions.controller';
 import { DiscussionsApiController } from './discussions.api.controller';
 import { DiscussionsService } from './discussions.service';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
+  imports: [AuthModule],
   controllers: [DiscussionsController, DiscussionsApiController],
   providers: [DiscussionsService],
   exports: [DiscussionsService],

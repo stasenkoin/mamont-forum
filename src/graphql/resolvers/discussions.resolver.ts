@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   NotFoundException,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -84,7 +85,12 @@ export class DiscussionsResolver {
     @Args('input') input: CreateDiscussionInput,
     @Context() context: GraphqlContext,
   ) {
-    return this.discussionsService.create(input, context.req.session.userId);
+    const stId = context.req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+    return this.discussionsService.create(input, user.id);
   }
 
   @Mutation(() => DiscussionType, {
@@ -96,13 +102,19 @@ export class DiscussionsResolver {
     @Args('input') input: UpdateDiscussionInput,
     @Context() context: GraphqlContext,
   ) {
+    const stId = context.req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const discussion = await this.discussionsService.findById(id);
 
     if (!discussion) {
       throw new NotFoundException('Обсуждение не найдено');
     }
 
-    if (discussion.authorId !== context.req.session.userId) {
+    if (discussion.authorId !== user.id) {
       throw new ForbiddenException('Нет прав (не автор)');
     }
 
@@ -117,13 +129,19 @@ export class DiscussionsResolver {
     @Args('id', { type: () => Int }) id: number,
     @Context() context: GraphqlContext,
   ) {
+    const stId = context.req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const discussion = await this.discussionsService.findById(id);
 
     if (!discussion) {
       throw new NotFoundException('Обсуждение не найдено');
     }
 
-    if (discussion.authorId !== context.req.session.userId) {
+    if (discussion.authorId !== user.id) {
       throw new ForbiddenException('Нет прав (не автор)');
     }
 

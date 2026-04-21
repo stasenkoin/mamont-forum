@@ -13,13 +13,17 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { CommentsService } from './comments.service';
+import { AuthService } from '../auth/auth.service';
 import { AuthGuard } from '../common/auth.guard';
 
 @ApiExcludeController()
 @Controller('discussions/:discussionId/comments')
 @UseGuards(AuthGuard)
 export class CommentsController {
-  constructor(private commentsService: CommentsService) {}
+  constructor(
+    private commentsService: CommentsService,
+    private authService: AuthService,
+  ) {}
 
   @Get(':commentId/edit')
   @Render('comments/edit')
@@ -28,6 +32,9 @@ export class CommentsController {
     @Param('commentId', ParseIntPipe) commentId: number,
     @Req() req: Request,
   ) {
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+
     const comment = await this.commentsService.findOne(commentId);
     if (!comment) {
       throw new NotFoundException('Комментарий не найден');
@@ -45,7 +52,7 @@ export class CommentsController {
 
     const isAuthor = await this.commentsService.isAuthor(
       commentId,
-      req.session.userId,
+      user?.id ?? 0,
     );
     if (!isAuthor) {
       throw new ForbiddenException(
@@ -56,7 +63,7 @@ export class CommentsController {
     return {
       discussionId,
       commentId,
-      user: req.session,
+      user,
     };
   }
 }

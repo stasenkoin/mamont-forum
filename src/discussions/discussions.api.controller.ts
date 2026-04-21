@@ -16,10 +16,12 @@ import {
   ForbiddenException,
   BadRequestException,
   DefaultValuePipe,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { DiscussionsService } from './discussions.service';
+import { AuthService } from '../auth/auth.service';
 import { CreateDiscussionDto } from './dto/create-discussion.dto';
 import { UpdateDiscussionDto } from './dto/update-discussion.dto';
 import { DiscussionResponseDto } from './dto/discussion-response.dto';
@@ -30,7 +32,10 @@ import { setPaginationHeaders } from '../common/pagination';
 @ApiTags('Обсуждения')
 @Controller('api/discussions')
 export class DiscussionsApiController {
-  constructor(private discussionsService: DiscussionsService) {}
+  constructor(
+    private discussionsService: DiscussionsService,
+    private authService: AuthService,
+  ) {}
 
   @Get()
   @Header('Cache-Control', 'no-cache')
@@ -81,7 +86,12 @@ export class DiscussionsApiController {
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @UseGuards(AuthGuardApi)
   async create(@Body() dto: CreateDiscussionDto, @Req() req: Request) {
-    return this.discussionsService.create(dto, req.session.userId);
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+    return this.discussionsService.create(dto, user.id);
   }
 
   @Patch(':id')
@@ -101,11 +111,17 @@ export class DiscussionsApiController {
     @Body() dto: UpdateDiscussionDto,
     @Req() req: Request,
   ) {
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const discussion = await this.discussionsService.findOne(id);
     if (!discussion) {
       throw new NotFoundException('Обсуждение не найдено');
     }
-    if (discussion.authorId !== req.session.userId) {
+    if (discussion.authorId !== user.id) {
       throw new ForbiddenException('Нет прав (не автор)');
     }
     return this.discussionsService.update(id, dto);
@@ -123,11 +139,17 @@ export class DiscussionsApiController {
   @ApiResponse({ status: 404, description: 'Обсуждение не найдено' })
   @UseGuards(AuthGuardApi)
   async delete(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const discussion = await this.discussionsService.findOne(id);
     if (!discussion) {
       throw new NotFoundException('Обсуждение не найдено');
     }
-    if (discussion.authorId !== req.session.userId) {
+    if (discussion.authorId !== user.id) {
       throw new ForbiddenException('Нет прав (не автор)');
     }
     await this.discussionsService.delete(id);

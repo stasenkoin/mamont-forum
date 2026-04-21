@@ -1,6 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { UserContextMiddleware } from './common/user-context.middleware';
 import { CacheModule } from '@nestjs/cache-manager';
+import { SupertokensModule } from './supertokens/supertokens.module';
 import type { Request, Response } from 'express';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
@@ -29,6 +31,13 @@ import { UsersResolver } from './graphql/resolvers/users.resolver';
   imports: [
     PrismaModule,
     CacheModule.register({ isGlobal: true, ttl: 5000 }),
+    SupertokensModule.forRoot({
+      connectionUri: process.env.SUPERTOKENS_CONNECTION_URI ?? '',
+      apiKey: process.env.SUPERTOKENS_API_KEY ?? '',
+      appName: 'Mamont Forum',
+      apiDomain: process.env.APP_URL ?? 'http://localhost:3456',
+      websiteDomain: process.env.APP_URL ?? 'http://localhost:3456',
+    }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       path: '/graphql',
@@ -64,4 +73,8 @@ import { UsersResolver } from './graphql/resolvers/users.resolver';
     UsersResolver,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(UserContextMiddleware).forRoutes('*');
+  }
+}

@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   NotFoundException,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -94,6 +95,12 @@ export class CommentsResolver {
     @Args('input') input: CreateCommentInput,
     @Context() context: GraphqlContext,
   ) {
+    const stId = context.req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const discussion = await this.prisma.discussion.findUnique({
       where: { id: discussionId },
       select: { id: true, authorId: true },
@@ -106,16 +113,13 @@ export class CommentsResolver {
     const comment = await this.commentsService.create(
       discussionId,
       input.content,
-      context.req.session.userId,
+      user.id,
     );
 
-    if (
-      discussion.authorId &&
-      discussion.authorId !== context.req.session.userId
-    ) {
+    if (discussion.authorId && discussion.authorId !== user.id) {
       await this.notificationsService.create({
         type: 'discussion_commented',
-        message: `${context.req.session.nickname} оставил комментарий в вашем обсуждении`,
+        message: `${user.nickname} оставил комментарий в вашем обсуждении`,
         userId: discussion.authorId,
         discussionId,
       });
@@ -133,13 +137,19 @@ export class CommentsResolver {
     @Args('input') input: UpdateCommentInput,
     @Context() context: GraphqlContext,
   ) {
+    const stId = context.req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const comment = await this.commentsService.findOne(id);
 
     if (!comment) {
       throw new NotFoundException('Комментарий не найден');
     }
 
-    if (comment.authorId !== context.req.session.userId) {
+    if (comment.authorId !== user.id) {
       throw new ForbiddenException('Нет прав (не автор)');
     }
 
@@ -154,13 +164,19 @@ export class CommentsResolver {
     @Args('id', { type: () => Int }) id: number,
     @Context() context: GraphqlContext,
   ) {
+    const stId = context.req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+
     const comment = await this.commentsService.findOne(id);
 
     if (!comment) {
       throw new NotFoundException('Комментарий не найден');
     }
 
-    if (comment.authorId !== context.req.session.userId) {
+    if (comment.authorId !== user.id) {
       throw new ForbiddenException('Нет прав (не автор)');
     }
 

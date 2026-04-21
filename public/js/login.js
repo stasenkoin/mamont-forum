@@ -1,23 +1,28 @@
 document.getElementById('login-form').addEventListener('submit', function (e) {
   e.preventDefault();
-  var nickname = document.getElementById('nickname').value.trim();
+  var email = document.getElementById('email').value.trim();
   var password = document.getElementById('password').value;
+  var errorMsg = document.getElementById('error-msg');
 
-  fetch('/api/auth/login', {
+  fetch('/auth/signin', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nickname: nickname, password: password }),
+    body: JSON.stringify({
+      formFields: [
+        { id: 'email', value: email },
+        { id: 'password', value: password },
+      ],
+    }),
   })
-    .then(function (r) {
-      if (!r.ok) return r.json().then(function (d) { throw d; });
-      return r.json();
-    })
-    .then(function () {
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.status !== 'OK') {
+        throw new Error(data.message || 'Неверный email или пароль');
+      }
       window.location.href = '/discussions';
     })
     .catch(function (err) {
-      var msg = document.getElementById('error-msg');
-      msg.textContent = err.message || 'Ошибка входа';
-      msg.style.display = 'block';
+      errorMsg.textContent = err.message || 'Ошибка входа';
+      errorMsg.style.display = 'block';
     });
 });

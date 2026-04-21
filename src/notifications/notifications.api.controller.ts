@@ -15,10 +15,12 @@ import {
   BadRequestException,
   DefaultValuePipe,
   HttpCode,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { NotificationsService } from './notifications.service';
+import { AuthService } from '../auth/auth.service';
 import { NotificationResponseDto } from './dto/notification-response.dto';
 import { MessageResponseDto } from '../auth/dto/user-response.dto';
 import { AuthGuardApi } from '../common/auth-api.guard';
@@ -28,7 +30,10 @@ import { setPaginationHeaders } from '../common/pagination';
 @Controller('api/notifications')
 @UseGuards(AuthGuardApi)
 export class NotificationsApiController {
-  constructor(private notificationsService: NotificationsService) {}
+  constructor(
+    private notificationsService: NotificationsService,
+    private authService: AuthService,
+  ) {}
 
   @Get()
   @Header('Cache-Control', 'private, max-age=60')
@@ -50,8 +55,13 @@ export class NotificationsApiController {
     if (page < 1 || limit < 1) {
       throw new BadRequestException('page и limit должны быть больше 0');
     }
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
     const result = await this.notificationsService.findForUserPaginated(
-      req.session.userId,
+      user.id,
       page,
       limit,
     );
@@ -71,12 +81,17 @@ export class NotificationsApiController {
   @ApiResponse({ status: 403, description: 'Нет прав (чужое уведомление)' })
   @ApiResponse({ status: 404, description: 'Уведомление не найдено' })
   async markAsRead(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
     const notification = await this.notificationsService.findOne(id);
     if (!notification) {
       throw new NotFoundException('Уведомление не найдено');
     }
 
-    if (notification.userId !== req.session.userId) {
+    if (notification.userId !== user.id) {
       throw new ForbiddenException('Нет прав (чужое уведомление)');
     }
     return this.notificationsService.markAsRead(id);
@@ -92,7 +107,12 @@ export class NotificationsApiController {
   })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   async markAllAsRead(@Req() req: Request) {
-    await this.notificationsService.markAllAsRead(req.session.userId);
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+    await this.notificationsService.markAllAsRead(user.id);
     return { message: 'Все уведомления прочитаны' };
   }
 
@@ -107,12 +127,17 @@ export class NotificationsApiController {
   @ApiResponse({ status: 403, description: 'Нет прав (чужое уведомление)' })
   @ApiResponse({ status: 404, description: 'Уведомление не найдено' })
   async delete(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
     const notification = await this.notificationsService.findOne(id);
     if (!notification) {
       throw new NotFoundException('Уведомление не найдено');
     }
 
-    if (notification.userId !== req.session.userId) {
+    if (notification.userId !== user.id) {
       throw new ForbiddenException('Нет прав (чужое уведомление)');
     }
     await this.notificationsService.delete(id);
