@@ -5,6 +5,7 @@ import {
   Patch,
   Delete,
   Body,
+  Header,
   Param,
   Query,
   Req,
@@ -32,6 +33,7 @@ export class DiscussionsApiController {
   constructor(private discussionsService: DiscussionsService) {}
 
   @Get()
+  @Header('Cache-Control', 'no-cache')
   @ApiOperation({ summary: 'Получить список обсуждений' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
@@ -54,6 +56,7 @@ export class DiscussionsApiController {
   }
 
   @Get(':id')
+  @Header('Cache-Control', 'no-cache')
   @ApiOperation({ summary: 'Получить обсуждение по ID' })
   @ApiResponse({
     status: 200,

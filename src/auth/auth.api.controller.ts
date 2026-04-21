@@ -2,30 +2,51 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Body,
+  Header,
   Req,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   ConflictException,
   UnauthorizedException,
   HttpCode,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
+import { S3Service } from '../s3/s3.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import {
   AuthResponseDto,
   UserResponseDto,
   MessageResponseDto,
+  AvatarResponseDto,
 } from './dto/user-response.dto';
 import { AuthGuardApi } from '../common/auth-api.guard';
 
 @ApiTags('Авторизация')
 @Controller('api/auth')
 export class AuthApiController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private s3Service: S3Service,
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Регистрация нового пользователя' })
@@ -90,6 +111,7 @@ export class AuthApiController {
   }
 
   @Get('me')
+  @Header('Cache-Control', 'private, max-age=60')
   @ApiOperation({ summary: 'Получить данные текущего пользователя' })
   @ApiResponse({
     status: 200,
@@ -109,6 +131,57 @@ export class AuthApiController {
       avatarUrl: user.avatarUrl,
       createdAt: user.createdAt,
     };
+  }
+
+  @Patch('me/avatar')
+  @UseGuards(AuthGuardApi)
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Загрузить аватар пользователя' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Файл изображения (jpeg, png, gif, webp)',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Аватар обновлён',
+    type: AvatarResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Неверный формат или размер файла' })
+  @ApiResponse({ status: 401, description: 'Не авторизован' })
+  async uploadAvatar(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /image\/(jpeg|png|gif|webp)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @Req() req: Request,
+  ) {
+    const ext = file.mimetype.split('/')[1];
+    const key = `avatars/${req.session.userId}-${Date.now()}.${ext}`;
+
+    const avatarUrl = await this.s3Service.upload(
+      key,
+      file.buffer,
+      file.mimetype,
+    );
+
+    await this.authService.updateAvatar(req.session.userId, avatarUrl);
+    req.session.avatarUrl = avatarUrl;
+
+    return { avatarUrl };
   }
 
   @Delete('me')

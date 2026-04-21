@@ -5,6 +5,7 @@ import {
   Patch,
   Delete,
   Body,
+  Header,
   Param,
   Query,
   Req,
@@ -38,6 +39,7 @@ export class CommentsApiController {
   ) {}
 
   @Get()
+  @Header('Cache-Control', 'no-cache')
   @ApiOperation({ summary: 'Получить комментарии обсуждения' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
@@ -62,7 +64,11 @@ export class CommentsApiController {
     if (!discussion) {
       throw new NotFoundException('Обсуждение не найдено');
     }
-    const result = await this.commentsService.findByDiscussion(discussionId, page, limit);
+    const result = await this.commentsService.findByDiscussion(
+      discussionId,
+      page,
+      limit,
+    );
     setPaginationHeaders(
       res,
       `/api/discussions/${discussionId}/comments`,
@@ -74,6 +80,7 @@ export class CommentsApiController {
   }
 
   @Get(':commentId')
+  @Header('Cache-Control', 'no-cache')
   @ApiOperation({ summary: 'Получить комментарий по ID' })
   @ApiResponse({
     status: 200,

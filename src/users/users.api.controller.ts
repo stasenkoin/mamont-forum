@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Header,
   Query,
   Res,
   ParseIntPipe,
@@ -19,6 +20,7 @@ export class UsersApiController {
   constructor(private usersService: UsersService) {}
 
   @Get()
+  @Header('Cache-Control', 'no-cache')
   @ApiOperation({ summary: 'Получить список пользователей' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })

@@ -1,11 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateDiscussionDto } from './dto/create-discussion.dto';
 import { UpdateDiscussionDto } from './dto/update-discussion.dto';
 
+type PaginatedDiscussions = Awaited<
+  ReturnType<DiscussionsService['fetchAllPaginated']>
+>;
+
 @Injectable()
 export class DiscussionsService {
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(DiscussionsService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private cache: Cache,
+  ) {}
 
   async findAll() {
     return this.prisma.discussion.findMany({
@@ -17,7 +28,25 @@ export class DiscussionsService {
     });
   }
 
-  async findAllPaginated(page: number, limit: number) {
+  async findAllPaginated(
+    page: number,
+    limit: number,
+  ): Promise<PaginatedDiscussions> {
+    const cacheKey = `discussions:list:p${page}:l${limit}`;
+
+    const cached = await this.cache.get<PaginatedDiscussions>(cacheKey);
+    if (cached) {
+      this.logger.log(`cache HIT ${cacheKey}`);
+      return cached;
+    }
+
+    this.logger.log(`cache MISS ${cacheKey}`);
+    const fresh = await this.fetchAllPaginated(page, limit);
+    await this.cache.set(cacheKey, fresh);
+    return fresh;
+  }
+
+  private async fetchAllPaginated(page: number, limit: number) {
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
       this.prisma.discussion.findMany({
