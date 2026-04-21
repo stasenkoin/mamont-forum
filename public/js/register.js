@@ -2,10 +2,8 @@ document.getElementById('register-form').addEventListener('submit', function (e)
   e.preventDefault();
   var nickname = document.getElementById('nickname').value.trim();
   var password = document.getElementById('password').value;
-  var avatarUrl = document.getElementById('avatarUrl').value.trim();
 
   var body = { nickname: nickname, password: password };
-  if (avatarUrl) body.avatarUrl = avatarUrl;
 
   fetch('/api/auth/register', {
     method: 'POST',

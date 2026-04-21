@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Delete,
+  Header,
   Param,
   Query,
   Req,
@@ -30,6 +31,7 @@ export class NotificationsApiController {
   constructor(private notificationsService: NotificationsService) {}
 
   @Get()
+  @Header('Cache-Control', 'private, max-age=60')
   @ApiOperation({ summary: 'Получить список уведомлений' })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
@@ -69,7 +71,7 @@ export class NotificationsApiController {
   @ApiResponse({ status: 403, description: 'Нет прав (чужое уведомление)' })
   @ApiResponse({ status: 404, description: 'Уведомление не найдено' })
   async markAsRead(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
-    var notification = await this.notificationsService.findOne(id);
+    const notification = await this.notificationsService.findOne(id);
     if (!notification) {
       throw new NotFoundException('Уведомление не найдено');
     }

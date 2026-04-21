@@ -1,5 +1,5 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsNotEmpty } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
   @ApiProperty({ description: 'Никнейм пользователя', example: 'mamont123' })
@@ -11,12 +11,4 @@ export class RegisterDto {
   @IsString()
   @IsNotEmpty()
   password: string;
-
-  @ApiPropertyOptional({
-    description: 'URL аватара',
-    example: 'https://example.com/avatar.png',
-  })
-  @IsString()
-  @IsOptional()
-  avatarUrl?: string;
 }

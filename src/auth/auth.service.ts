@@ -13,7 +13,6 @@ export class AuthService {
       data: {
         nickname: dto.nickname,
         password: hash,
-        avatarUrl: dto.avatarUrl || null,
       },
     });
   }
@@ -32,6 +31,13 @@ export class AuthService {
   async nicknameExists(nickname: string) {
     const user = await this.prisma.user.findUnique({ where: { nickname } });
     return !!user;
+  }
+
+  async updateAvatar(userId: number, avatarUrl: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl },
+    });
   }
 
   async deleteAccount(userId: number) {

@@ -32,3 +32,11 @@ export class MessageResponseDto {
   @ApiProperty({ description: 'Сообщение', example: 'Операция выполнена' })
   message: string;
 }
+
+export class AvatarResponseDto {
+  @ApiProperty({
+    description: 'Публичный URL загруженного аватара',
+    example: 'https://storage.yandexcloud.net/mamont-forum-avatars-stasenko/avatars/1-1713000000000.jpeg',
+  })
+  avatarUrl: string;
+}

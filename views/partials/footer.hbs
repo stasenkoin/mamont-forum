@@ -10,8 +10,6 @@
   </div>
 </footer>
 <script>
-  // Замер клиентского времени: сколько прошло от начала запроса
-  // до полной загрузки страницы (performance.getEntriesByType)
   window.addEventListener('load', function () {
     var nav = performance.getEntriesByType('navigation')[0];
     var el = document.getElementById('client-elapsed');

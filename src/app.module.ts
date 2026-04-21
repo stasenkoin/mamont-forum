@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { CacheModule } from '@nestjs/cache-manager';
+import type { Request, Response } from 'express';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { ElapsedTimeInterceptor } from './common/elapsed-time.interceptor';
+import { EtagInterceptor } from './common/etag.interceptor';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { DiscussionsModule } from './discussions/discussions.module';
@@ -25,6 +28,7 @@ import { UsersResolver } from './graphql/resolvers/users.resolver';
 @Module({
   imports: [
     PrismaModule,
+    CacheModule.register({ isGlobal: true, ttl: 5000 }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       path: '/graphql',
@@ -33,7 +37,10 @@ import { UsersResolver } from './graphql/resolvers/users.resolver';
       introspection: true,
       csrfPrevention: false,
       playground: false,
-      context: ({ req, res }) => ({ req, res }),
+      context: ({ req, res }: { req: Request; res: Response }) => ({
+        req,
+        res,
+      }),
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
     AuthModule,
@@ -47,6 +54,7 @@ import { UsersResolver } from './graphql/resolvers/users.resolver';
   controllers: [AppController],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: ElapsedTimeInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: EtagInterceptor },
     ComplexityPlugin,
     AuthResolver,
     DiscussionsResolver,
