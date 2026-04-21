@@ -13,6 +13,22 @@ import { PrismaExceptionFilter } from './common/prisma-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'https://sandbox.embed.apollographql.com',
+      'https://explorer.embed.apollographql.com',
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'apollo-require-preflight',
+      'x-apollo-operation-name',
+    ],
+  });
+
   app.useStaticAssets(join(process.cwd(), 'public'));
   app.setBaseViewsDir(join(process.cwd(), 'views'));
   app.setViewEngine('hbs');
