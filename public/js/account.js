@@ -60,7 +60,7 @@ document.getElementById('avatar-form').addEventListener('submit', function (e) {
 });
 
 document.getElementById('logout-btn').addEventListener('click', function () {
-  fetch('/api/auth/logout', { method: 'POST' })
+  fetch('/auth/signout', { method: 'POST' })
     .then(function () {
       window.location.href = '/';
     });

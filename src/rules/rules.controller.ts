@@ -7,6 +7,6 @@ export class RulesController {
   @Get()
   @Render('rules/index')
   rules() {
-    return { user: null };
+    return {};
   }
 }

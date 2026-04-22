@@ -6,7 +6,11 @@ document.getElementById('login-form').addEventListener('submit', function (e) {
 
   fetch('/auth/signin', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'st-auth-mode': 'cookie',
+    },
+    credentials: 'same-origin',
     body: JSON.stringify({
       formFields: [
         { id: 'email', value: email },

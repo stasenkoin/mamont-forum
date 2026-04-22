@@ -25,8 +25,8 @@ export class DiscussionsController {
 
   @Get()
   @Render('discussions/index')
-  list(@Req() req: Request) {
-    return { user: null };
+  list() {
+    return {};
   }
 
   @Get('new')
@@ -47,7 +47,6 @@ export class DiscussionsController {
     }
     return {
       discussionId: id,
-      user: null,
     };
   }
 

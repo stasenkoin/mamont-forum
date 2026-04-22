@@ -7,7 +7,11 @@ document.getElementById('register-form').addEventListener('submit', function (e)
 
   fetch('/auth/signup', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'st-auth-mode': 'cookie',
+    },
+    credentials: 'same-origin',
     body: JSON.stringify({
       formFields: [
         { id: 'email', value: email },
@@ -25,6 +29,7 @@ document.getElementById('register-form').addEventListener('submit', function (e)
       return fetch('/api/auth/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ supertokensId: supertokensId, nickname: nickname }),
       });
     })

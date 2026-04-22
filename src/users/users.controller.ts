@@ -7,6 +7,6 @@ export class UsersController {
   @Get()
   @Render('users/index')
   list() {
-    return { user: null };
+    return {};
   }
 }

@@ -35,8 +35,6 @@ import {
   AvatarResponseDto,
 } from './dto/user-response.dto';
 import { AuthGuardApi } from '../common/auth-api.guard';
-import { AuthGuard } from '../common/auth.guard';
-import { Public } from '../common/public.decorator';
 
 @ApiTags('Авторизация')
 @Controller('api/auth')
@@ -74,7 +72,7 @@ export class AuthApiController {
     type: UserResponseDto,
   })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuardApi)
   async me(@Req() req: Request) {
     const stId = req.session.getUserId();
     const user = await this.authService.findBySupertokensId(stId);

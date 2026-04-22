@@ -25,6 +25,13 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
+  app.use((req, _res, next) => {
+    if (req.path.startsWith('/auth/') && !req.headers['st-auth-mode']) {
+      req.headers['st-auth-mode'] = 'cookie';
+    }
+    next();
+  });
+
   app.use(middleware());
 
   app.useStaticAssets(join(process.cwd(), 'public'));

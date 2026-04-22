@@ -2,7 +2,6 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request, Response } from 'express';
@@ -33,7 +32,8 @@ export class AuthGuard implements CanActivate {
       return true;
     } catch (err) {
       if (STError.isErrorFromSuperTokens(err)) {
-        throw new UnauthorizedException('Необходима авторизация');
+        res.redirect('/auth/login');
+        return false;
       }
       throw err;
     }
