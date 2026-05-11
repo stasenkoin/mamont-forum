@@ -9,7 +9,12 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiCookieAuth,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { DiscussionLikesService } from './discussion-likes.service';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -22,7 +27,7 @@ import { PrismaService } from '../prisma/prisma.service';
 @ApiTags('Лайки')
 @Controller('api/discussions/:discussionId')
 @UseGuards(AuthGuardApi)
-export class DiscussionLikesApiController {
+@ApiCookieAuth('sAccessToken')export class DiscussionLikesApiController {
   constructor(
     private likesService: DiscussionLikesService,
     private notificationsService: NotificationsService,

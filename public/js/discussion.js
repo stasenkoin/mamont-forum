@@ -2,6 +2,7 @@ var currentPage = 1;
 var totalPages = 1;
 var discussionId = null;
 var currentUserId = null;
+var currentUserRole = null;
 var totalComments = 0;
 
 function formatDate(dateStr) {
@@ -26,6 +27,7 @@ function renderDiscussion(d) {
   if (currentUserId && d.authorId === parseInt(currentUserId)) {
     isAuthor = true;
   }
+  var canDelete = isAuthor || currentUserRole === 'ADMIN';
 
   var userLiked = false;
   if (currentUserId && d.likes) {
@@ -54,9 +56,11 @@ function renderDiscussion(d) {
   html = html + '<span id="like-count">&#10084; ' + d._count.likes + '</span>';
   html = html + '</div>';
 
-  if (isAuthor) {
+  if (isAuthor || canDelete) {
     html = html + '<div class="author-actions">';
-    html = html + '<a href="/discussions/' + d.id + '/edit" class="btn btn-sm">Редактировать</a>';
+    if (isAuthor) {
+      html = html + '<a href="/discussions/' + d.id + '/edit" class="btn btn-sm">Редактировать</a>';
+    }
     html = html + '<button class="btn btn-sm btn-danger" id="delete-discussion-btn">Удалить</button>';
     html = html + '</div>';
   }
@@ -223,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   discussionId = container.dataset.discussionId;
   currentUserId = container.dataset.userId || null;
+  currentUserRole = container.dataset.userRole || null;
 
   fetch('/api/discussions/' + discussionId)
     .then(function (response) {

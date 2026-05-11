@@ -18,7 +18,13 @@ import {
   DefaultValuePipe,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiCookieAuth,
+} from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -120,6 +126,7 @@ export class CommentsApiController {
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @ApiResponse({ status: 404, description: 'Обсуждение не найдено' })
   @UseGuards(AuthGuardApi)
+  @ApiCookieAuth('sAccessToken')
   async create(
     @Param('discussionId', ParseIntPipe) discussionId: number,
     @Body() dto: CreateCommentDto,
@@ -172,6 +179,7 @@ export class CommentsApiController {
   @ApiResponse({ status: 403, description: 'Нет прав (не автор)' })
   @ApiResponse({ status: 404, description: 'Комментарий не найден' })
   @UseGuards(AuthGuardApi)
+  @ApiCookieAuth('sAccessToken')
   async update(
     @Param('discussionId', ParseIntPipe) discussionId: number,
     @Param('commentId', ParseIntPipe) commentId: number,
@@ -212,6 +220,7 @@ export class CommentsApiController {
   @ApiResponse({ status: 403, description: 'Нет прав (не автор)' })
   @ApiResponse({ status: 404, description: 'Комментарий не найден' })
   @UseGuards(AuthGuardApi)
+  @ApiCookieAuth('sAccessToken')
   async delete(
     @Param('discussionId', ParseIntPipe) discussionId: number,
     @Param('commentId', ParseIntPipe) commentId: number,

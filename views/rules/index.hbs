@@ -39,3 +39,33 @@
     <li>Решения администрации являются окончательными.</li>
   </ul>
 </div>
+
+{{#if customRules.length}}
+  <div class="page-header"><h2>Дополнительные правила</h2></div>
+  {{#each customRules}}
+    <div class="card" id="rule-{{this.id}}">
+      <h3>{{this.title}}</h3>
+      <p>{{this.content}}</p>
+      {{#if (eq ../user.role "ADMIN")}}
+        <button class="btn btn-sm btn-outline" onclick="deleteRule({{this.id}})">Удалить</button>
+      {{/if}}
+    </div>
+  {{/each}}
+{{/if}}
+
+{{#if (eq user.role "ADMIN")}}
+  <div class="card">
+    <h2>Добавить новое правило</h2>
+    <div class="alert alert-error" id="rule-error" style="display:none"></div>
+    <form id="rule-form" class="form">
+      <label for="rule-title">Заголовок</label>
+      <input type="text" id="rule-title" name="title" required>
+
+      <label for="rule-content">Содержание</label>
+      <textarea id="rule-content" name="content" rows="3" required></textarea>
+
+      <button type="submit" class="btn btn-primary">Опубликовать правило</button>
+    </form>
+  </div>
+  <script src="/js/rules.js"></script>
+{{/if}}

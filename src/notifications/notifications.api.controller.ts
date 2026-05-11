@@ -17,7 +17,13 @@ import {
   HttpCode,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiCookieAuth,
+} from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { NotificationsService } from './notifications.service';
 import { AuthService } from '../auth/auth.service';
@@ -29,7 +35,7 @@ import { setPaginationHeaders } from '../common/pagination';
 @ApiTags('Уведомления')
 @Controller('api/notifications')
 @UseGuards(AuthGuardApi)
-export class NotificationsApiController {
+@ApiCookieAuth('sAccessToken')export class NotificationsApiController {
   constructor(
     private notificationsService: NotificationsService,
     private authService: AuthService,

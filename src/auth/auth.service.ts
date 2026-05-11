@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import UserRoles from 'supertokens-node/recipe/userroles';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -6,8 +7,9 @@ export class AuthService {
   constructor(private prisma: PrismaService) {}
 
   async createProfile(supertokensId: string, nickname: string) {
+    await UserRoles.addRoleToUser('public', supertokensId, 'USER');
     return this.prisma.user.create({
-      data: { supertokensId, nickname },
+      data: { supertokensId, nickname, role: 'USER' },
     });
   }
 

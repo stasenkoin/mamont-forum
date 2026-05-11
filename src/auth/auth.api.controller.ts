@@ -25,6 +25,7 @@ import {
   ApiResponse,
   ApiConsumes,
   ApiBody,
+  ApiCookieAuth,
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
@@ -59,7 +60,10 @@ export class AuthApiController {
     if (await this.authService.nicknameExists(body.nickname)) {
       throw new ConflictException('Этот никнейм уже занят');
     }
-    const user = await this.authService.createProfile(body.supertokensId, body.nickname);
+    const user = await this.authService.createProfile(
+      body.supertokensId,
+      body.nickname,
+    );
     return { id: user.id, nickname: user.nickname };
   }
 
@@ -73,6 +77,7 @@ export class AuthApiController {
   })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @UseGuards(AuthGuardApi)
+  @ApiCookieAuth('sAccessToken')
   async me(@Req() req: Request) {
     const stId = req.session.getUserId();
     const user = await this.authService.findBySupertokensId(stId);
@@ -83,12 +88,14 @@ export class AuthApiController {
       id: user.id,
       nickname: user.nickname,
       avatarUrl: user.avatarUrl,
+      role: user.role,
       createdAt: user.createdAt,
     };
   }
 
   @Patch('me/avatar')
   @UseGuards(AuthGuardApi)
+  @ApiCookieAuth('sAccessToken')
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Загрузить аватар пользователя' })
   @ApiConsumes('multipart/form-data')
@@ -152,6 +159,7 @@ export class AuthApiController {
   })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @UseGuards(AuthGuardApi)
+  @ApiCookieAuth('sAccessToken')
   async deleteAccount(@Req() req: Request) {
     const stId = req.session.getUserId();
     const user = await this.authService.findBySupertokensId(stId);

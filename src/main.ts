@@ -26,9 +26,12 @@ async function bootstrap() {
   });
 
   app.use((req, _res, next) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     if (req.path.startsWith('/auth/') && !req.headers['st-auth-mode']) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       req.headers['st-auth-mode'] = 'cookie';
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     next();
   });
 
@@ -50,7 +53,11 @@ async function bootstrap() {
     .setTitle('Mamont Forum API')
     .setDescription('REST API форума Mamont.')
     .setVersion('1.0')
-    .addCookieAuth('sAccessToken')
+    .addCookieAuth(
+      'sAccessToken',
+      { type: 'apiKey', in: 'cookie', name: 'sAccessToken' },
+      'sAccessToken',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document, {

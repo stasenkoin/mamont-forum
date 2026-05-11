@@ -18,7 +18,13 @@ import {
   DefaultValuePipe,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiCookieAuth,
+} from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { DiscussionsService } from './discussions.service';
 import { AuthService } from '../auth/auth.service';
@@ -85,6 +91,7 @@ export class DiscussionsApiController {
   @ApiResponse({ status: 400, description: 'Некорректные данные' })
   @ApiResponse({ status: 401, description: 'Не авторизован' })
   @UseGuards(AuthGuardApi)
+  @ApiCookieAuth('sAccessToken')
   async create(@Body() dto: CreateDiscussionDto, @Req() req: Request) {
     const stId = req.session.getUserId();
     const user = await this.authService.findBySupertokensId(stId);
@@ -106,6 +113,7 @@ export class DiscussionsApiController {
   @ApiResponse({ status: 403, description: 'Нет прав (не автор)' })
   @ApiResponse({ status: 404, description: 'Обсуждение не найдено' })
   @UseGuards(AuthGuardApi)
+  @ApiCookieAuth('sAccessToken')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateDiscussionDto,
@@ -138,6 +146,7 @@ export class DiscussionsApiController {
   @ApiResponse({ status: 403, description: 'Нет прав (не автор)' })
   @ApiResponse({ status: 404, description: 'Обсуждение не найдено' })
   @UseGuards(AuthGuardApi)
+  @ApiCookieAuth('sAccessToken')
   async delete(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     const stId = req.session.getUserId();
     const user = await this.authService.findBySupertokensId(stId);
@@ -149,7 +158,7 @@ export class DiscussionsApiController {
     if (!discussion) {
       throw new NotFoundException('Обсуждение не найдено');
     }
-    if (discussion.authorId !== user.id) {
+    if (discussion.authorId !== user.id && user.role !== 'ADMIN') {
       throw new ForbiddenException('Нет прав (не автор)');
     }
     await this.discussionsService.delete(id);

@@ -61,6 +61,13 @@ model DiscussionLike {
   @@unique([userId, discussionId])
 }
 
+model Rule {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+}
+
 model Notification {
   id           Int      @id @default(autoincrement())
   type         String
