@@ -13,6 +13,9 @@ export class UserResponseDto {
   })
   avatarUrl: string | null;
 
+  @ApiProperty({ description: 'Роль', example: 'USER', enum: ['USER', 'ADMIN'] })
+  role: string;
+
   @ApiProperty({
     description: 'Дата регистрации',
     example: '2026-04-10T12:00:00.000Z',

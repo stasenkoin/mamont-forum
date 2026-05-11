@@ -7,12 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  nickname  String   @unique
-  password  String
-  avatarUrl String?
-  createdAt DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  supertokensId  String   @unique
+  nickname       String   @unique
+  avatarUrl      String?
+  role           Role     @default(USER)
+  createdAt      DateTime @default(now())
 
   discussions   Discussion[]
   comments      Comment[]
@@ -53,6 +59,13 @@ model DiscussionLike {
   discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
 
   @@unique([userId, discussionId])
+}
+
+model Rule {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
 }
 
 model Notification {

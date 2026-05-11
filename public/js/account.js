@@ -5,6 +5,7 @@ fetch('/api/auth/me')
   .then(function (user) {
     var html = '';
     html = html + '<p><strong>Никнейм:</strong> ' + user.nickname + '</p>';
+    html = html + '<p><strong>Роль:</strong> ' + user.role + '</p>';
 
     if (user.avatarUrl) {
       html = html + '<p><strong>Аватар:</strong></p>';
@@ -60,7 +61,7 @@ document.getElementById('avatar-form').addEventListener('submit', function (e) {
 });
 
 document.getElementById('logout-btn').addEventListener('click', function () {
-  fetch('/api/auth/logout', { method: 'POST' })
+  fetch('/auth/signout', { method: 'POST' })
     .then(function () {
       window.location.href = '/';
     });

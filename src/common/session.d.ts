@@ -1,9 +1,9 @@
-import 'express-session';
+import { SessionContainer } from 'supertokens-node/recipe/session';
 
-declare module 'express-session' {
-  interface SessionData {
-    userId?: number;
-    nickname?: string;
-    avatarUrl?: string;
+declare global {
+  namespace Express {
+    interface Request {
+      session: SessionContainer;
+    }
   }
 }

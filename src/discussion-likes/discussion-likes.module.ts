@@ -3,9 +3,10 @@ import { DiscussionLikesController } from './discussion-likes.controller';
 import { DiscussionLikesApiController } from './discussion-likes.api.controller';
 import { DiscussionLikesService } from './discussion-likes.service';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [NotificationsModule],
+  imports: [NotificationsModule, AuthModule],
   controllers: [DiscussionLikesController, DiscussionLikesApiController],
   providers: [DiscussionLikesService],
   exports: [DiscussionLikesService],

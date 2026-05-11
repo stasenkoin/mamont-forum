@@ -1,13 +1,16 @@
 import { ApiExcludeController } from '@nestjs/swagger';
-import { Controller, Get, Req, Render } from '@nestjs/common';
-import { Request } from 'express';
+import { Controller, Get, Render } from '@nestjs/common';
+import { RulesService } from './rules.service';
 
 @ApiExcludeController()
 @Controller('rules')
 export class RulesController {
+  constructor(private rulesService: RulesService) {}
+
   @Get()
   @Render('rules/index')
-  rules(@Req() req: Request) {
-    return { user: req.session.userId ? req.session : null };
+  async rules() {
+    const customRules = await this.rulesService.findAll();
+    return { customRules };
   }
 }

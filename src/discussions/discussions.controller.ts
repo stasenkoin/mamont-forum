@@ -12,24 +12,30 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { DiscussionsService } from './discussions.service';
+import { AuthService } from '../auth/auth.service';
 import { AuthGuard } from '../common/auth.guard';
 
 @ApiExcludeController()
 @Controller('discussions')
 export class DiscussionsController {
-  constructor(private discussionsService: DiscussionsService) {}
+  constructor(
+    private discussionsService: DiscussionsService,
+    private authService: AuthService,
+  ) {}
 
   @Get()
   @Render('discussions/index')
-  list(@Req() req: Request) {
-    return { user: req.session.userId ? req.session : null };
+  list() {
+    return {};
   }
 
   @Get('new')
   @UseGuards(AuthGuard)
   @Render('discussions/new')
-  newForm(@Req() req: Request) {
-    return { user: req.session };
+  async newForm(@Req() req: Request) {
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
+    return { user };
   }
 
   @Get(':id')
@@ -41,7 +47,6 @@ export class DiscussionsController {
     }
     return {
       discussionId: id,
-      user: req.session.userId ? req.session : null,
     };
   }
 
@@ -53,9 +58,11 @@ export class DiscussionsController {
     if (!discussion) {
       throw new NotFoundException('Обсуждение не найдено');
     }
+    const stId = req.session.getUserId();
+    const user = await this.authService.findBySupertokensId(stId);
     const isAuthor = await this.discussionsService.isAuthor(
       id,
-      req.session.userId,
+      user?.id ?? 0,
     );
     if (!isAuthor) {
       throw new ForbiddenException(
@@ -64,7 +71,7 @@ export class DiscussionsController {
     }
     return {
       discussionId: id,
-      user: req.session,
+      user,
     };
   }
 }
