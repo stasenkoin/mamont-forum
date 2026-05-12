@@ -15,8 +15,8 @@ async function main() {
   supertokens.init({
     framework: 'express',
     supertokens: {
-      connectionURI: process.env.SUPERTOKENS_CONNECTION_URI!,
-      apiKey: process.env.SUPERTOKENS_API_KEY!,
+      connectionURI: process.env.SUPERTOKENS_CONNECTION_URI,
+      apiKey: process.env.SUPERTOKENS_API_KEY,
     },
     appInfo: {
       appName: 'Mamont Forum',
